@@ -172,7 +172,6 @@ class DashBody extends StatefulWidget {
                       children: <Widget>[
                         Padding(padding: EdgeInsets.only(top:15)),
                           Text("Cash Deposits",style: _title,),
-                          Text("hello"),
                       ],
                      ),
                     ),
@@ -213,7 +212,6 @@ class DashBody extends StatefulWidget {
                       children: <Widget>[
                         Padding(padding: EdgeInsets.only(top:15)),
                           Text("Food Deliveries",style: _title,),
-                          Text("hello"),
                       ],
                      ),
                     ),
@@ -253,7 +251,6 @@ class DashBody extends StatefulWidget {
                       children: <Widget>[
                         Padding(padding: EdgeInsets.only(top:15)),
                           Text("One Of Delivery",style: _title,),
-                          Text("hello"),
                       ],
                      ),
                     ),

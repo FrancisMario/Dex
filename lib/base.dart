@@ -17,7 +17,7 @@ class _Home extends State<Home>{
    [
     Dash(),
     Orders(),
-    Settings(),
+    // Settings(),
    ];
 
   void _onItemTapped(int index) {
@@ -45,10 +45,10 @@ class _Home extends State<Home>{
             icon: Icon(Icons.shopping_cart,color: Colors.black),
             title: Text('Delivery',style: TextStyle(color:Colors.black),),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings,color: Colors.black),
-            title: Text('Settings',style: TextStyle(color:Colors.black),),
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.settings,color: Colors.black),
+          //   title: Text('Settings',style: TextStyle(color:Colors.black),),
+          // ),
         ],
          currentIndex: _selectedIndex,
          selectedItemColor: Colors.red[800],

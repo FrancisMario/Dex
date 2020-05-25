@@ -22,7 +22,27 @@ class _ConfirmCode extends State<ConfirmCode> {
   var _isButtonDisabled = false;
   Color _buttonColor = Color.fromRGBO(62,62,62 ,1);
 
-  
+  showError(String err){
+    showDialog(
+    context: context,
+    builder: (BuildContext context){
+        return AlertDialog(
+          title: Text("Alert"),
+          content: Text(err),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Close"),
+              onPressed: (){
+                  Navigator.of(context).pop();
+              },
+          )
+          ],
+        );
+    }
+    
+  );
+  }
+
   @override
   Widget build(BuildContext context) {
     
@@ -84,6 +104,14 @@ class _ConfirmCode extends State<ConfirmCode> {
                       if (state) {
                           // saving user to device
                           // Provider.of<AppState>(context, listen: true).;
+                          var cred = Provider.of<AppState>(context, listen: false).cred;
+                          Provider.of<AppState>(context, listen: false).setCred(cred,true);
+                          Navigator.pushAndRemoveUntil( 
+                             context, 
+                            MaterialPageRoute(
+                                builder: (context) => Home()
+                            ), 
+                            ModalRoute.withName("/Home"));
 
                           Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){return Home();}));
                           print("code is correct");
@@ -93,6 +121,7 @@ class _ConfirmCode extends State<ConfirmCode> {
                            _isButtonDisabled = false;
                            _buttonColor = Color.fromRGBO(62,62,62 ,1);
                         });
+                        showError("Incorrect Code, Try Again.");
                         print("code is wrong");
                         print(widget.correctCode);
                         print(_enterCodeController.text);

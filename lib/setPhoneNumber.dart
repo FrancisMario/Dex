@@ -39,6 +39,7 @@ class _Body extends State < Body > {
   String _code = null;
   Map<String,dynamic> body = null;
   var clickable = true;
+  Widget _buttonDisplay = Text('GO', style: new TextStyle(fontSize: 25.0),);
 
   @override
   void dispose() {
@@ -47,63 +48,86 @@ class _Body extends State < Body > {
     super.dispose();
   }
 
-  Future<void> _neverSatisfied() async {
-  return showDialog<void>(
-    context: context,
-    barrierDismissible: false, // user must tap button!
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Rewind and remember'),
-        content: SingleChildScrollView(
-          child: ListBody(
-            children: <Widget>[
-              Text('You will never be satisfied.'),
-              Text('You\’re like me. I’m never satisfied.'),
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          FlatButton(
-            child: Text('Regret'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
-
-
 
   _query(phone) async {
     if (clickable) {
-      clickable = false;
-      final response = await http.get('http://192.168.137.1/verify_phone/verify.php?phone=${phone}');
+      setState(() {
+        clickable = false;
+       _buttonDisplay =  new CircularProgressIndicator(value: null, strokeWidth: 7.0,);
+      });
+
+      final response = await http.post('http://34.67.233.153:3000/api/signin',
+                headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+                body: jsonEncode(<String, String>{
+                'phone': phone,
+                }),)
+        .timeout(
+          Duration(seconds:10),
+          onTimeout: (){
+           print("143423");
+             showError("Network Error, Check connection and try Again.");
+              setState(() {
+              clickable = true;
+              _buttonDisplay =  new  Text('GO', style: new TextStyle(fontSize: 25.0),);
+          });
+        });
+
       // check the status code  for the result   
       int statusCode = response.statusCode;
 
       switch(statusCode){
-        case 408 :
-        break;
         case 200:
         try{
-          print(response.body);
+          print("response =" + response.body);
            body = jsonDecode(response.body);
+           if(body['status']){
            print(body);
-           Credential cred = new Credential.fromJson(body);
-           Provider.of<AppState>(context, listen: false).setCred(cred);
-          print("everthing Okaay");
-          clickable = true;
+              var ss = jsonEncode(<String, String>{
+                'phone': body['phone'],
+                'name': body['firstname'],
+                'user_id': body['uid'],
+            });
+  
+           Credential cred = new Credential.fromJson(jsonDecode(ss));
+           print("credn name: ${cred.name}");
+           print("credn phone: ${cred.phone}");
+           print("credn uid: ${cred.user_id}");
+           Provider.of<AppState>(context, listen: false).setCred(cred,false);
+          Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
+                            return ConfirmCode(body['code']); //skipping code verification till later
+                            // return Home();
+                          }));
+          
+          setState(() {
+              clickable = true;
+              _buttonDisplay =  new  Text('GO', style: new TextStyle(fontSize: 25.0),);
+          });
+           } else {
+
+           }
         } catch(e){
           print("something went wrong");
           print(e);
-          clickable = true;
+          setState(() {
+              clickable = true;
+              _buttonDisplay =  new  Text('GO', style: new TextStyle(fontSize: 25.0),);
+          });
           return false;
         }
           return true;
+          case 404:
+            setState(() {
+              clickable = true;
+              _buttonDisplay =  new  Text('GO', style: new TextStyle(fontSize: 25.0),);
+          });
+          break;
         default:
+        showError("Server Error");
+        print(statusCode);
+        setState(() {
+              clickable = true;
+              _buttonDisplay =  new  Text('GO', style: new TextStyle(fontSize: 25.0),);
+          });
         return false;
       }
   }
@@ -111,7 +135,26 @@ class _Body extends State < Body > {
 
 
 
-
+ showError(String err){
+    showDialog(
+    context: context,
+    builder: (BuildContext context){
+        return AlertDialog(
+          title: Text("Alert"),
+          content: Text(err),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Close"),
+              onPressed: (){
+                  Navigator.of(context).pop();
+              },
+          )
+          ],
+        );
+    }
+    
+  );
+  }
 
 
   @override
@@ -145,7 +188,7 @@ class _Body extends State < Body > {
                         ),
                       ),
                       validator: (val) {
-                        if (val.length == 0) {
+                        if (val.isEmpty) {
                           return "phone cannot be empty";
                         } else {
                           return null;
@@ -160,23 +203,23 @@ class _Body extends State < Body > {
                   new Padding(padding: EdgeInsets.only(top: 10.0)),
                   GestureDetector(
                     child: FlatButton(onPressed: () async {
-                      if (_enterPhoneFormKey.currentState.validate() && clickable) {
-  
+
+                      if (_enterPhoneController.value.text.length >= 7 && clickable) {
                         print("going");
                         if (await _query(_enterPhoneController.text)) {
                           print("navigating to confirm code");
-
-                          Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
-                            // return ConfirmCode("1000"); skipping code verification till later
-                            return Home();
-                          }));
-                        } else {
-                          return Container(height: 200, width: 200, decoration: BoxDecoration(
-                            color: Colors.black12,
-                          ), );
                         }
+                      } else {
+                        print(clickable);
+                        showError("Error,  Invalid Phone Number ");
+                          setState(() {
+                             clickable = true;
+                            _buttonDisplay =  new  Text('GO', style: new TextStyle(fontSize: 25.0),);
+                          });
                       }
-                    }, child: Container(
+
+                    }, 
+                    child: Container(  
                       height: 50,
                       width: 300,
                       decoration: new BoxDecoration(
@@ -184,11 +227,9 @@ class _Body extends State < Body > {
                         borderRadius: new BorderRadius.circular(5)
                       ),
                       child: new Center(
-                        child: Text('GO',
-                          style: new TextStyle(fontSize: 25.0),
-                        ),
-                      ),
+                        child:_buttonDisplay
                     ), ),
+                  ),
                   )
                 ]
               )

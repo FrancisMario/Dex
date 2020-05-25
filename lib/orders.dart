@@ -3,6 +3,7 @@ import 'package:dex/tracking.dart';
 import 'package:dex/voiceMessage.dart';
 import 'package:flutter/material.dart';
 import 'package:dex/newOrder.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Orders extends StatefulWidget {
   Orders({Key key}) : super(key: key);
@@ -12,10 +13,13 @@ class Orders extends StatefulWidget {
 
 class _Orders extends State<Orders> {
 
+ 
 
   
    static const TextStyle optionStyle =
       TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
+
+    
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -52,17 +56,56 @@ class _Orders extends State<Orders> {
 
 class OrderOptions extends StatelessWidget
  {
+
+    
+
   @override
   Widget build(BuildContext context) {
+
+  
+
+
+
+    Future<void> _makePhoneCall(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      print("call error ");
+    }
+  }
+
+confirmCall(){
+  showDialog(
+    context: context,
+    builder: (BuildContext context){
+        return AlertDialog(
+          title: Text("Alert"),
+          content: Text("Do you want to call DEX support"),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Close"),
+              onPressed: (){
+                  Navigator.of(context).pop();
+              },
+          ),FlatButton(
+              child: Text("OK"),
+              onPressed: (){
+                  _makePhoneCall('tel:+2203188982');
+                  Navigator.of(context).pop();
+              },
+          )
+          ],
+        );
+    }
+    
+  );
+  }
     return Container(
       child:Center(child: 
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-            Center(
-                child: Text("We Support Different Types Orders, You CA",style: TextStyle(fontSize:20),),
-             ),
                     Padding(padding: EdgeInsets.only(bottom:20)),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -77,7 +120,7 @@ class OrderOptions extends StatelessWidget
               borderRadius: BorderRadius.circular(5),
               color: Colors.tealAccent,
                  ),
-              height: 200,
+              height: 150,
               width: 150,
               child: Center(
                 child: Column(
@@ -104,7 +147,7 @@ class OrderOptions extends StatelessWidget
               borderRadius: BorderRadius.circular(5),
               color: Colors.tealAccent,
             ),
-              height: 200,
+              height: 150,
               width: 150,
               child: Center(
                 child: Column(
@@ -120,6 +163,66 @@ class OrderOptions extends StatelessWidget
            ),
           ]
         )
+      ,
+Padding(padding: EdgeInsets.only(bottom:20)),
+      
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children:<Widget>[
+            GestureDetector(
+              onTap: (){
+                  confirmCall();
+              },
+            child :Container(
+              decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: Colors.tealAccent,
+                 ),
+              height: 150,
+              width: 150,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                      Icon(Icons.call,size: 100,),
+                      Text("Help",style: TextStyle(fontSize:25),),
+                  ],
+                ), 
+              ),
+             ),
+            ),
+            Padding(padding: EdgeInsets.only(left:10)),
+
+
+            GestureDetector(
+              onTap: (){
+                // Redirect to the page
+              },
+            child: Container(
+               decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: Colors.white,
+            ),
+              height: 150,
+              width: 150,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                      
+                  ],
+                ),
+              ),
+             ),
+           ),
+          ]
+        )
+      
+      
+      
       ],),)
     );
   }

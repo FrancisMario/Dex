@@ -46,16 +46,53 @@ class DeliveryList extends StatelessWidget{
 
   DeliveryList(Key key) : super(key: key);
 
-  Future<List<dynamic>> getList(BuildContext context) async{
-    // String usr_id = Provider.of<AppState>(context, listen: true).cred.phone;
-        final response = await http.get('http://192.168.0.15/records/get_records.php?user_id=');
-        return jsonDecode(response.body) ;
+  showMessage(String title, String err){
+     showDialog(
+       builder: (BuildContext context){
+        return AlertDialog(
+            title: Text(title),
+            content: Text(err),
+            actions: <Widget>[
+            FlatButton(
+              child: Text("Close"),
+              onPressed: (){
+                  Navigator.of(context).pop();
+              },
+          )
+          ],
+        );
+      }  
+  );
   }
 
+      getList(BuildContext context) async{
+      String user_id = Provider.of<AppState>(context, listen: true).cred.user_id;
+       final response = await http.post('http://34.67.233.153:3000/api/fetchRecord',
+                headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
+                body: jsonEncode(<String, String>{
+                'user_id': user_id,
+                }),)
+        .timeout(
+          Duration(seconds:10),
+          onTimeout: (){
+           print("143423");
+             showMessage("Error","Network Error, Check connection and try Again.");
+        });
+        try {
+        var res = jsonDecode(response.body) ;
+        return res; 
+        } catch(e){
+             showMessage("Error","Network Error, Check connection and try Again.");
+            return null;
+        }
+  }
  
 
   @override
   Widget build(BuildContext context) {
+
+  
+
     return Container(
       child: Column(
         children: <Widget>[
@@ -109,9 +146,13 @@ class DeliveryList extends StatelessWidget{
                       var data = snapshot.data;
                       print(snapshot.data);
                       print("here..!");
+                      try{
                       RecordList rec = new RecordList.fromJson(data);
                       Provider.of<AppState>(context, listen: true).setOrderList(rec);
                       return  Body(list:rec);
+                      }catch(e){
+                           showMessage("Error",e.toString());
+                       }
                       }
                     }
             }
@@ -155,30 +196,76 @@ class  DeliveryInfoCard extends StatefulWidget {
   @override
   _DeliveryInfoCard createState() => _DeliveryInfoCard();
 }
-
 class _DeliveryInfoCard extends State<DeliveryInfoCard>{
-
-     Future<String>  progress() async{
-        final response = await http.get('http://192.168.137.1/records/trackRecord.php?user_id=');
-        return response.body;
-     }
+/**
+ *  final String time;
+  final String date;
+  final String pickup;
+  final String packageType;
+  //  Address destination;
+  final String reciever;
+ */
+  showDetails(){
+     showDialog(
+    context: context,
+    builder: (BuildContext context){
+        return AlertDialog(
+          title: Text(widget.record.name),
+          content: Container(
+            margin: EdgeInsets.all(5),
+            child:Column(children: <Widget>[
+              Row(
+                children:<Widget>[ 
+                Expanded(child: Text(widget.record.contact),),
+                Expanded(child: Text(widget.record.date),),
+                ]
+              ),
+              Row(
+                children:<Widget>[ 
+                Expanded(child: Text(widget.record.contact),),
+                Expanded(child: Text(widget.record.time),),
+                ]
+              ),
+              Row(
+                children:<Widget>[ 
+                Expanded(child: Text("Address"),),
+                ]
+              ),
+              Row(
+                children:<Widget>[ 
+                Expanded(child: Divider(),),
+                Expanded(child: null,),
+                Expanded(child: null,)
+                ]
+              ),
+              Row(
+                children:<Widget>[ 
+                Expanded(child: Text(widget.record.address),),
+                ]
+              ),
+            ],)
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Close"),
+              onPressed: (){
+                  Navigator.of(context).pop();
+              },
+          )
+          ],
+        );
+    }
+    
+  );
+  }
   @override
   Widget build(BuildContext context) {
-  
-  Future<String> prog =  progress();
-    String progres = "";
-    prog.then((val){
-        setState((){
-            progres = val;
-            print("dd: "+ val);
-        });
-    });
     return Container(
       padding: EdgeInsets.all(7),
       height: 100,
       width: 500,
       decoration: BoxDecoration(
-        color:Colors.cyan,
+        color:Colors.black26,
         borderRadius:BorderRadius.circular(5),
       ),
       child: Center(
@@ -187,15 +274,20 @@ class _DeliveryInfoCard extends State<DeliveryInfoCard>{
               Expanded(
                   child: Row(
                   children: <Widget>[
-                    Expanded(flex:10,child: Text(widget.record.reciever)),
-                    Expanded(child: Icon(Icons.info)),
+                    Expanded(flex:10,child: Text(widget.record.name)),
+                    Expanded(child: GestureDetector(child: Icon(Icons.info),onTap: (){
+                      // TODO infor dialog
+                      showDetails();
+                      },
+                     ),
+                    ),
                   ],
                 ),
               ),
               Expanded(
                               child: Row(
                   children: <Widget>[
-                    Expanded(child: Text(widget.record.destination.name)),
+                    Expanded(child: Text(widget.record.address)),
                   ],
                 ),
               ),
@@ -204,7 +296,6 @@ class _DeliveryInfoCard extends State<DeliveryInfoCard>{
                   children: <Widget>[
                     Expanded(child: Text(widget.record.date)),
                     Expanded(child: Text(widget.record.time)),
-                    Expanded(child: Text(progres)),
                   ],
                 ),
               ),

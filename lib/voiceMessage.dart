@@ -1,17 +1,19 @@
 import 'dart:io';
-import 'dart:math';
 import 'dart:typed_data';
+import 'package:dex/appState.dart';
+import 'package:dex/singleVoiceView.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_sound/flutter_sound_player.dart';
 import 'package:flutter_sound/flutter_sound_recorder.dart';
 import 'package:flutter_sound/flauto.dart';
-import 'package:flutter_sound/track_player.dart'; 
 import 'package:intl/intl.dart';
-import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
-
+import 'package:flutter_uploader/flutter_uploader.dart';
+import 'package:provider/provider.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 class VoiceMessage extends StatefulWidget {
 
@@ -29,8 +31,11 @@ FlutterSoundPlayer flutterSoundPlayer;
   var _isPlaying = false;
   var _isRecording = false;
   var recentRecording = "";
-  var rec_name = ""; 
+  var rec_name = "";
+  List<Widget> list = []; 
   File outputFile;
+  final uploader = FlutterUploader();
+  var  _isControlSectionAdded = false;
 
   List<Widget> audios = [];
 
@@ -65,7 +70,7 @@ FlutterSoundPlayer flutterSoundPlayer;
 
 /// generated unique file name for out order
 
-    Future getUniqueFileName() async {
+    Future getUniqueFileName() async { 
       return await DateTime.now().toUtc();
     }
 
@@ -76,6 +81,7 @@ FlutterSoundPlayer flutterSoundPlayer;
 
       setState((){
         startStopBtnColor = Colors.greenAccent;
+        print("Color changed");
       });
       _isRecording = true;
     // creating file recorder
@@ -96,10 +102,62 @@ FlutterSoundPlayer flutterSoundPlayer;
  });
   }
 
-
- Future<bool> sendAudio(){
-
+  showMessage(String title, String err){
+     showDialog(
+    context: context,
+    builder: (BuildContext context){
+        return AlertDialog(
+          title: Text(title),
+          content: Text(err),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Close"),
+              onPressed: (){
+                  Navigator.of(context).pop();
+              },
+          )
+          ],
+        );
+    }
+    
+  );
   }
+
+ Future<bool> sendAudio() async {
+print("uploading dio");
+   Dio dio = new Dio();
+    dio.options.baseUrl = "http://34.67.233.153:3000";
+    dio.options.connectTimeout = 5000;
+    dio.options.method = "post";
+
+    var file = outputFile.path.toString();
+    var upload_file = await http.MultipartFile.fromPath("audio", file,);
+   FormData formData  = FormData.fromMap({
+    "user_id": Provider.of<AppState>(context, listen: false).cred.user_id,
+    "file": upload_file,
+    });
+    var response = await dio.post("/upload", data: formData).timeout(Duration(seconds: 10),onTimeout: (){
+      print("uploading timeout");
+      showMessage("Error","network error.  check connection and try again!");
+    }).then((a){
+      
+      print("a " + a.statusCode.toString());
+      switch (a.statusCode) {
+        case 200:
+      print("uploading success");
+          showMessage("Success","Orders Successfully sent!");
+             setState(() {
+                  list.add(VoiceView(outputFile:file));
+                  outputFile = null;
+              });
+          break;
+        default:
+      print("uploading netwoek error");
+          showMessage("Error","Sorry there was an issue with our servers. please tr again.");
+          break;
+      }
+    });
+}
 
 
 /// Stopping the recorder
@@ -138,8 +196,11 @@ FlutterSoundPlayer flutterSoundPlayer;
   }
 
   // stopping playing
-  stopPlaying() async{
+  stopPlaying() async {
       await flutterSoundPlayer.stopPlayer();
+      setState((){
+        startStopBtnColor = Colors.lightBlueAccent;
+      });
       _isPlaying = false;
   }
 // Releases the sound resources.
@@ -159,76 +220,25 @@ FlutterSoundPlayer flutterSoundPlayer;
   }
 
 
+        
   @override Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text("Voice Order"),
-      ),
 
-      body: Container(child: Center(child: Column(verticalDirection: VerticalDirection.up,
-            children:<Widget>[
-              ListView.builder(
-                itemCount: audios.length,
-                itemBuilder: (context,index){
-                return audios[index];
-              }),
-            Container(height: 50,
-              color: Colors.black12,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[ Expanded(child:GestureDetector(onTap: () {
-
-                      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Voice Order Sucessfully Sent!'),
-                          action: SnackBarAction(label: 'close',
-                            onPressed: () {
-                              // Some code to undo the change.
-                            },
-                          ),
-                        ));
-                    },
-                    child: Container(child: Center(child:Text("Send")), ),
-                  ),
-                 ),
-                Expanded(
-                  child:GestureDetector(
-                    onTap: () {
-                        print("attempting to play: ");
-                        print("play btn clicked");
-                        print(outputFile.path);
-                      if (_isPlaying) {
-                        print("stopping player");
-                          _isPlaying = false;
-                        stopPlaying();
-                      }
-                      else {
-                          _isPlaying = true;
-                        print("playing: " + flutterSoundRecorder.savedUri.toString());
-                        playRecording();
-                      }
-                    }
-                    , child: Container(child: Center(child:Text("play"+ rec_name)),),
-                    ),
-                   ),
-
-                Expanded(child: GestureDetector(onTap : () {
-                      if (_isRecording) {
-                        stopRecorder();
-                        print("stopped recording: ");
-                      }
-                      else {
-                        startRecorder();
-                        print("started recorder: " + flutterSoundRecorder.savedUri);
-                      }
-                    },
-                    child: Container(color: startStopBtnColor,
-                      height: 100,
-                      child: Icon(Icons.mic),
-                    ),
-                  ),
-                ),
-
-
-                ],
-              ),
-            )]),
+    if(!_isControlSectionAdded){
+     list.add(bottomControls());
+     _isControlSectionAdded = true;
+    }
+        return Scaffold(
+          appBar: AppBar(title: Text("Voice Order"),),
+          body: Container(
+            // height:20,
+            child: Center(
+              child: ListView.builder(
+                reverse: true,
+                itemCount: list.length,
+                itemBuilder: (context,index) {
+                  return list[index];
+                },
+             ),
         ),
       ),
     );
@@ -236,12 +246,72 @@ FlutterSoundPlayer flutterSoundPlayer;
 
 
     Widget renderVoice(){
-  return Container( 
+      return Container( 
           height: 70,
+          width: 100,
               color: Colors.yellow,
               child:Text("Sizes"),
           );
     }
 
+Widget bottomControls() {
+     return  Container(
+                  height: 50,
+                  color: Colors.black12,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[ 
+                      Expanded(
+                        child:GestureDetector(
+                            child: Container(child: Center(child:Text("Send")), ),
+                            onTap: () {
+                               sendAudio();
+                              },
+                          ),
+                     ),
+                
+                    Expanded(
+                      child:GestureDetector(
+                        onTap: () {
+                            print("attempting to play: ");
+                            print("play btn clicked");
+                            print(outputFile.path);
+                          if (_isPlaying) {
+                            print("stopping player");
+                              _isPlaying = false;
+                            stopPlaying();
+                          }
+                          else {
+                              _isPlaying = true;
+                            print("playing: " + flutterSoundRecorder.savedUri.toString());
+                            playRecording();
+                          }
+                        }
+                        , child: Container(child: Center(child:Text("play"+ rec_name)),),
+                        ),
+                       ),
+    
+                    Expanded(child: GestureDetector(onTap : () {
+                          if (_isRecording) {
+                            stopRecorder();
+                            print("stopped recording: ");
+                          }
+                          else {
+                            startRecorder();
+                            print("started recorder: " + flutterSoundRecorder.savedUri);
+                          }
+                        },
+                        child: Container(color: startStopBtnColor,
+                          height: 100,
+                          child: Icon(Icons.mic),
+                        ),
+                      ),
+                    ),
+    
+    
+                    ],
+                  ),
+                );
+}
 
 }

@@ -1,4 +1,50 @@
 
+
+
+class OrderPackage {
+   String name;
+   String geolocation;
+   String lastname;
+   String phone;
+   String delivery_address;
+   String delivery_date;
+   String delivery_time;
+   String pickup_date;
+   String pickup_time;
+   String pickup_address;
+   String sender_id;
+   String order_date;
+   String order_time;
+   String order_details;
+   String package_size;
+   String package_description;
+   String delivery_note;
+
+
+  //    Map<String, dynamic> toMap() {
+  //   return {
+  //     'name': name,
+  //     // 'geolocation': geolocation,
+  //     // 'lastname': lastname, not yet sure if i wanna add this kinda complexity to my code
+  //     'phone': phone,
+  //     'delivery_address': delivery_address,
+  //     'delivery_date': delivery_date,
+  //     'delivery_time': delivery_time,
+  //     'pickup_date': pickup_date,
+  //     'sender_id': sender_id,
+  //     'order_date': order_date,
+  //     // 'order_time': order_time,
+  //     // 'order_details': order_details,
+  //     'package_description': package_description,
+  //     'delivery_note': delivery_note,
+  //   };
+  // }
+
+ 
+}
+
+
+
 // the cre
 class Credential {
    final String phone;
@@ -74,9 +120,8 @@ class Address {
 
 class RecordList {
      List<Record> list; 
-
+     
      RecordList(this.list);
-
 
  List<Record> toMap() {
     return list;
@@ -92,43 +137,39 @@ factory RecordList.fromJson(List<dynamic> json) {
     print(list[0].date);
   }
   return RecordList(list);
-
-
   }
 
 }
 
 
 class Record {
+  final String name;
   final String time;
   final String date;
-  final String pickup;
-  final String packageType;
-   Address destination;
-  final String reciever;
+  final String contact;
+  final String address;
+  //  Address destination;
 
-  Record({this.date, this.time, this.packageType, destination, this.pickup, this.reciever}){
-      this.destination = Address.fromJson(destination);
+  Record({this.name, this.contact, this.address, this.date, this.time,  }){
+      // this.destination = Address.fromJson(destination);
   }
 
   Map<String, dynamic> toMap() {
     return {
       'time': time,
       'date': date,
-      'pickup': pickup,
-      'packageType' : packageType,
-      'destination' :destination,
-      'reciever' : reciever,
+      'name': name,
+      'contact' :contact,
+      'address' :address,
     };
   }
  factory Record.fromJson(Map<String, dynamic> json) {
     return Record(
       time: json['time'],
       date: json['date'],
-      pickup: json['pickup'],
-      packageType: json['packageType'],
-      destination: json['destination'],
-      reciever: json['reciever']
+      name: json['name'],
+      contact: json['contact'],
+      address: json['address'],
     );
   }
 }

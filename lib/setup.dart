@@ -112,14 +112,14 @@ Future<dynamic> checkingUserLoginState() async {
                         print(snapshot.data);
                         Map<String, dynamic> data = jsonDecode(snapshot.data);
                         Credential cred = new Credential.fromJson(data);
-                        Provider.of<AppState>(context, listen: true).setCred(cred);
+                        Provider.of<AppState>(context, listen: true).setCred(cred,false);
                       } else {
                          /**
                           * I have no idea why i wrote this else block. Maybe it's important, 
                           * so i won't delete it.
                           */
                          // if the data is from remote server
-                      Provider.of<AppState>(context, listen: true).setCred(snapshot.data);
+                      Provider.of<AppState>(context, listen: true).setCred(snapshot.data,false);
                       }
                       return  Home();
                     }

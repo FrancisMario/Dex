@@ -21,7 +21,7 @@ String dbName = "state";
                   await db.execute(" create table `record` ( time text not null, date text not null, pickup text not null, packageType text not null, destination text not null, reciever text not null)");
                   await db.execute(" create table `hashes` ( datatype text not null, last_update text not null, hash text not null)");
                   },onOpen: (db){
-                    db.rawQuery("INSERT INTO credential (name,phone)  VALUES ('mario','3247034')");
+                    // db.rawQuery("INSERT INTO credential (name,phone)  VALUES ('mario','3247034')");
                      db.execute(" create table `credential` ( name text not null, phone text not null )");
                      db.execute(" create table `stat` ( total_delivery text not null, account_type text not null) ");
                     db.execute(" create table `address` ( table_id integer primary key autoincrement, name text not null, street text not null, geo_coordinate text not null) ");
@@ -116,12 +116,12 @@ Future<List<Record>> GetRecords() async{
   // Convert the List<Map<String, dynamic> into a List<Addresses>.
       return List.generate(maps.length, (i) {
         return Record(
+          
           time: maps[i]['time'],
           date: maps[i]['date'],
-          pickup: maps[i]['pickup'],
-          packageType: maps[i]['packageType'],
-          destination: maps[i]['destination'],
-          reciever: maps[i]['reciever']
+          name: maps[i]['name'],
+          contact: maps[i]['contact'],
+          address: maps[i]['address']
         );
       });
 }

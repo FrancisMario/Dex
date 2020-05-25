@@ -13,16 +13,25 @@ class AppState with ChangeNotifier{
 
       Stat stat = null;
       Stat get _stat => stat;
-    
+
+      OrderPackage order = new OrderPackage();
+      OrderPackage get _order => order;
+
+      
       Credential cred = null;
       Credential get _cred => cred;
 
       RecordList orderList = null;
       RecordList get _orderList => orderList;
       
-      void setCred(newCred){
+      void setCred(Credential newCred,bool save){
           this.cred = newCred;
+          if (save) {
+            print(newCred.name);
+            print(newCred.phone);
+            print(newCred.user_id);
           dbhdl.InsertCredential(newCred);
+          }
           notifyListeners();
       }
 
