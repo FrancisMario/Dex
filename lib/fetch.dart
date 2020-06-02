@@ -1,14 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dex/appState.dart';
 import 'package:dex/dataStructures.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 
 
-Future<Credential> fetchCredential(String phone) async {
+Future<Credential> fetchCredential(BuildContext context,String phone) async {
+        String url =Provider.of<AppState>(context, listen: false).serverUrl; 
   final response =
-      await http.get('https://192.168.100.23?user_id=${phone}');
+      await http.get( url + '?user_id=${phone}');
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response, then parse the JSON.

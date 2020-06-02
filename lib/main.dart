@@ -1,7 +1,11 @@
 import 'package:dex/appState.dart';
+import 'package:dex/checkOutAddress.dart';
+import 'package:dex/detailedEntityView.dart';
+import 'package:dex/entityList.dart';
 import 'package:dex/setup.dart';
 import 'package:dex/testWidget.dart';
 import 'package:dex/marketPlace.dart';
+import 'package:dex/displayShoppingCart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 void main() => runApp(MyApp());
@@ -25,15 +29,10 @@ class _MyApp extends State<MyApp>{
         builder: (context, appState, _) {
           return MaterialApp(
             // home:  Setup(key:widget.key),
-            home: DetailedEntityView(),
+            home: DisplayShoppingCart(),
           );
         },
       ),
     );
-    
-
-
-
-
   }
 }

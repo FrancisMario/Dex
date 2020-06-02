@@ -126,9 +126,8 @@ FlutterSoundPlayer flutterSoundPlayer;
  Future<bool> sendAudio() async {
 print("uploading dio");
    Dio dio = new Dio();
-    dio.options.baseUrl = "http://34.67.233.153:3000";
+    dio.options.baseUrl = dio.options.baseUrl = Provider.of<AppState>(context, listen: false).serverUrl;;
     dio.options.connectTimeout = 5000;
-    dio.options.method = "post";
 
     var file = outputFile.path.toString();
     var upload_file = await http.MultipartFile.fromPath("audio", file,);

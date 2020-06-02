@@ -1,8 +1,14 @@
+import 'dart:convert';
+
+import 'package:dex/appState.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DetailedEntityView extends StatefulWidget {
-  DetailedEntityView({Key key}) : super(key: key);
+  final String id;
+  DetailedEntityView({Key key, this.id}) : super(key: key);
 
   @override
   _DetailedEntityViewState createState() => _DetailedEntityViewState();
@@ -20,23 +26,69 @@ class DetailedEntityView extends StatefulWidget {
 class _DetailedEntityViewState extends State<DetailedEntityView> {
   @override
   Widget build(BuildContext context) {
+
+
+    return Center(
+        child: FutureBuilder<Map>(
+          ///If future is null then API will not be called as soon as the screen
+          ///loads. This can be used to make this Future Builder dependent
+          ///on a button click.
+          future: getData(context), // Dear future developer of this code... this code can better. It's your problem now. Deal with it. 
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+                ///when the future is null
+              case ConnectionState.none:
+                return Text(
+                  'Press the button to fetch data',
+                  textAlign: TextAlign.center,
+                );
+
+              case ConnectionState.active:
+
+                ///when data is being fetched
+              case ConnectionState.waiting:
+                return CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue));
+
+              case ConnectionState.done:
+                ///task is complete with an error (eg. When you
+                ///are offline)
+                if (snapshot.hasError){
+                  print("snapshot has error");
+                  print(snapshot.error); 
+                  return Container(
+                    child:Text("Snapshot has error"),
+                  );
+                }
+                  print("fsoef aseuofaspoe fpaseupfas fperh wraw9rcg aw rbaur9a wirawuoerh awc9erauiwer awr");
+                  print(snapshot.data); 
+                return  _body(snapshot.data);
+            }
+          },
+        ),
+      ); 
+  }
+
+// Body
+  Widget _body(dynamic data){ 
+    print("---------------------------------------------");
+    print(data);
+    print("---------------------------------------------");
     return Container(
        child: Scaffold(
-         floatingActionButton:
-                Container(
+         floatingActionButton: Container(
                           // margin: EdgeInsets.only(right:10),
                     width:48,
                     decoration: BoxDecoration(
                       color: Theme.of(context).primaryColor,
                       borderRadius: BorderRadius.circular(30)
-                          ),
-                    child: IconButton(
+                    ),
+                    child: IconButton( 
                               icon: Icon(Icons.shopping_cart), 
                               color: Colors.white,
                               onPressed: () {
-                            
-                                  print("dd");
-                                  }),
+                                   print("dd");
+                              }),
                       ),
           body: Column(
             children:<Widget>[
@@ -45,11 +97,11 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
                     Image(
                         width: MediaQuery.of(context).size.width,
                         height: 200,
-                        image: AssetImage('assets/food.JPG'),
+                        image: AssetImage('assets/food.JPG'), // TODO
                         fit: BoxFit.cover,
                         ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5.0,vertical: 20.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 5.0,vertical: 20.0), 
                       child: Row(
                           children: <Widget>[
                             IconButton(icon: Icon(Icons.arrow_back,color: Colors.white,),iconSize: 30.0),
@@ -65,7 +117,7 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                         SizedBox(height: 5,),
-                        Text("McCeaser's",style: TextStyle(fontSize:30,fontWeight: FontWeight.bold),),
+                        Text("data['details']['name']",style: TextStyle(fontSize:30,fontWeight: FontWeight.bold),),
                         SizedBox(height: 10,),
                         Row(
                           children: <Widget>[
@@ -76,7 +128,7 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
                           ],
                         ),
                         SizedBox(height: 5,),
-                        Text("Westfield",style: TextStyle(fontSize:20),),
+                        Text("data['details']['location']",style: TextStyle(fontSize:20),),
                         SizedBox(height: 10,),
                         SizedBox(height: 10,width: MediaQuery.of(context).size.width / 1.3, child: Divider(thickness: 1.5,),),
                         SizedBox(height: 3,),
@@ -92,19 +144,29 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
                 physics: BouncingScrollPhysics(),
                 children:
                   List.generate(
-                    widget.menu.length, 
-                    (index) {
-                      return _builder();
-                    } )
+                    4, 
+                      (index) => Container(
+                              child: Column(
+                                  children:<Widget> [
+                                      Text("$index"),
+                                      Text(data),
+                                      ]
+                                )
+                              ),
+                    )
                 ),
             ),
             ],
           ),
        ),
     );
+  
   }
 
-   Widget _builder(){
+
+
+  // Builder
+   Widget _builder(dynamic data){
          return  GestureDetector(
               onTap: () {
                  
@@ -127,7 +189,7 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
                     ),
                     GestureDetector(
                       onLongPress: (){
-                        showDetails();
+                        showDetails({"name":data['name'],"description":data['description']});
                       },
                         child: Container(
                         height: 175.0,
@@ -151,13 +213,13 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
                       bottom: 60.0,
                       child: Column(
                         children: <Widget>[
-                          Text("Noodles",style: TextStyle(
+                          Text(data['name'],style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                             letterSpacing: 1.2
                           ),),
-                          Text("D 150",style: TextStyle(
+                          Text(data['price'],style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -190,7 +252,7 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
             );
   }
 
- showDetails(){
+ showDetails(Map<String,dynamic> data){
      showDialog(
     context: context,
     builder: (BuildContext context){
@@ -203,10 +265,10 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
                         children: <Widget>[
                           Expanded(
                             child:
-                            Text("Mario Gomez"),
+                            Text(data['name']),
                           ),
                           Expanded(
-                              child: Text("sd dsan asidasnda sdiasdoind asdinaiod asidnasodi adiasndoias daiodnasiod asdasnoldias dadniaionda sdkjsadiasdla sdoujasoduiaosidnja sdsoandipasndasjo doasdionasdoas dasdnoiasdnasdla dasdoasn",
+                              child: Text(data['description'],
                               style: TextStyle(
                               ),overflow: TextOverflow.clip,),
                               ),
@@ -227,4 +289,45 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
     
   );
   } 
+
+
+Future getData(BuildContext context) async{    
+  String url = Provider.of<AppState>(context, listen: false).serverUrl;
+  
+// Optionally the request above could also be done as
+    var response = await http.get(
+      "$url/market/entityProducts.php?entity_id=${widget.id}"
+    ).timeout(Duration(seconds: 10),onTimeout: (){
+      print("timeout reached");
+    }).catchError((onError){
+      print("onError");
+      print(onError);
+    });
+     switch (response.statusCode) {
+          case 200:
+            print("200");
+            print(response.body);
+            var data;
+                try {
+                    data = json.decode(response.body.toString()); // parsing the server response 
+                   } 
+                catch(e) {
+                  print("json parsing problem");
+                  return null;
+                }
+                  print("------------------------------------------------------");
+                  print(data);
+                  print("------------------------------------------------------");
+            return data;
+          break;
+          case 403:
+            print("403");
+            print(response);
+          break;
+          default:
+            print("Error");
+            print(response.statusCode);
+          break;
+        }
+  }
 }

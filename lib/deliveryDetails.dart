@@ -91,7 +91,7 @@ class _DeliveryDetails extends State<DeliveryDetails> {
    _sendOrder() async {
 
 Dio dio = new Dio();
-dio.options.baseUrl = "http://34.67.233.153:3000";
+dio.options.baseUrl = dio.options.baseUrl = Provider.of<AppState>(context, listen: false).serverUrl;;
 
 // Optionally the request above could also be done as
 var response = await dio.post("/order", data: 

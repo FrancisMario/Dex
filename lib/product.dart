@@ -1,58 +1,50 @@
 import 'package:flutter/material.dart';
 
-class ProductBox extends StatelessWidget {
-  ProductBox({
-    Key key,
-    this.item
-  }): super(key: key);
-
-  final Product item;
-
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(2),
-      height: 140,
-      child: Card( 
-        child: Row( 
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget> [ 
-            // Image.asset("assets/appimages/" + this.item.image),
-            Expanded( child: 
-              Container( padding: EdgeInsets.all(5), 
-                    child: Column( mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: < Widget > [ 
-                                      Text(
-                                        this.item.name,
-                                        style: TextStyle( 
-                                          fontWeight: FontWeight.bold 
-                                              )
-                                          ), 
-                                        Text(
-                                          this.item.description
-                                             ), 
-                                        Text("Price: " + this.item.price.toString()), 
-                                        // RatingBox(),
-                                         ], 
-                                         )
-                                        )
-                                       )
-                                     ]
-                                   ),
-                                 )
-                                );
-  }
+class Product {   
+  final String product_name;   
+  final String product_description;   
+  final String category_id;   
+  final String entity_id;   
+  final String product_id;   
+  final int price;   
+  final String image;
+   int quantity;
+ 
+  Product({this.quantity,this.product_name, this.product_description, this.price, this.image, this.category_id, this.entity_id, this.product_id}); 
+ 
+   Map<String, dynamic> toMap() {
+    return {
+      'product_name': product_name,
+      'product_description':product_description,
+      'category_id': category_id,
+      'entity_id': entity_id,
+      'product_id': product_id,
+      'price': price,
+      'image': image
+    };
 }
 
-class Product {   final String name;   final String description;   final int price;   final String image; 
- 
-  Product(this.name, this.description, this.price, this.image); 
- 
-  static List<Product> getProducts() {  
-       List<Product> items = <Product>[]; 
-    items.add(Product("Pixel", "Pixel is the most featureful phone ever", 800, "pixel.png"));  
-    items.add(Product("Laptop", "Laptop is most productive development tool", 2000, "laptop.png"));  
-    items.add(Product("Tablet", "Tablet is the most useful device ever for meeting",         1500,         "tablet.png"));  
-    items.add(Product("Pendrive", "iPhone is the stylist phone ever", 100, "pendrive.png")); 
-    items.add(Product("Floppy Drive", "iPhone is the stylist phone ever", 20, "floppy.png")); 
-    items.add(Product("iPhone", "iPhone is the stylist phone ever", 1000, "iphone.png")); 
-    return items;   } }
+  void increment(){
+    this.quantity -= 1;
+  }
+
+  void decrement(){
+    this.quantity += 1;
+
+  }
+  int getTotal(){
+    return this.price * this.quantity;
+  }
+ factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      product_name: json['user_id'],
+      product_description: json['product_description'],
+      category_id: json['category_id'],
+      entity_id: json['ectity_id'],
+      product_id: json['product_id'],
+      price: json['price'],
+      image: json['image_0'],
+    );
+  }
+  
+  }

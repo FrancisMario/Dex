@@ -1,5 +1,6 @@
 import 'package:dex/dataStructures.dart';
 import 'package:dex/database.dart';
+import 'package:dex/virtualShoppingCart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -11,11 +12,16 @@ class AppState with ChangeNotifier{
       
       DatabaseHandler dbhdl = new DatabaseHandler();
 
+      String serverUrl = "http://192.168.0.121";
+
       Stat stat = null;
       Stat get _stat => stat;
 
       OrderPackage order = new OrderPackage();
       OrderPackage get _order => order;
+
+      VirtualShoppingCart shoppingCart = new VirtualShoppingCart();
+      VirtualShoppingCart get _shoppingCart => shoppingCart;
 
       
       Credential cred = null;
