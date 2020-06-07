@@ -83,7 +83,7 @@ Future<List<Address>> GetAddress(int mode,String searchParam) async{
         return Address(
           name: maps[i]['name'],
           description: maps[i]['description'],
-          geolocation: maps[i]['geolocation'],
+          coordinates: maps[i]['geolocation'],
         );
       });
            

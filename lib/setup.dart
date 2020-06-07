@@ -101,11 +101,11 @@ Future<dynamic> checkingUserLoginState() async {
                 if (snapshot.hasError){
                   print("snapshot has error");
                   print(snapshot.error);
-                      return  Login();
+                      return  Login(key:widget.key);
                 } else {
                     if (snapshot.data == null) {
                       print("no data in database");
-                      return  Login();
+                      return  Login(key:widget.key);
                     } else {
                       if (true) { 
                         // if the data is from the local database
@@ -121,7 +121,7 @@ Future<dynamic> checkingUserLoginState() async {
                          // if the data is from remote server
                       Provider.of<AppState>(context, listen: true).setCred(snapshot.data,false);
                       }
-                      return  Home();
+                      return  Home(key:widget.key);
                     }
                 }
             }

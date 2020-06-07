@@ -95,24 +95,27 @@ class Stat {
 
 class Address {
   final String name;
+  final String table_id;
   final String description;
-  final String geolocation;
+  final String coordinates;
 
-  Address({this.description,this.name,this.geolocation, age});
+  Address({this.table_id,this.description,this.name,this.coordinates});
 
      Map<String, dynamic> toMap() {
     return {
       'name': name,
+      'table_id': table_id,
       'description': description,
-      'geolocation': geolocation
+      'geolocation': coordinates
     };
   }
 
  factory Address.fromJson(Map<String, dynamic> json) {
     return Address(
       name: json['name'],
+      table_id: json['table_id'],
       description: json['description'],
-      geolocation: json['geolocation']
+      coordinates: json['geolocation']
     );
   }
 }

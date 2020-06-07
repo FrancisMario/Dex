@@ -1,6 +1,9 @@
+import 'package:dex/checkOutAddress.dart';
 import 'package:dex/dash.dart';
+import 'package:dex/marketPlace.dart';
 import 'package:dex/orders.dart';
 import 'package:dex/settings.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -17,7 +20,8 @@ class _Home extends State<Home>{
    [
     Dash(),
     Orders(),
-    // Settings(),
+    CategoryView(),
+    CheckOutAddress(),
    ];
 
   void _onItemTapped(int index) {
@@ -45,10 +49,14 @@ class _Home extends State<Home>{
             icon: Icon(Icons.shopping_cart,color: Colors.black),
             title: Text('Delivery',style: TextStyle(color:Colors.black),),
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.settings,color: Colors.black),
-          //   title: Text('Settings',style: TextStyle(color:Colors.black),),
-          // ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.store_mall_directory,color: Colors.black),
+            title: Text('Market',style: TextStyle(color:Colors.black),),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.store_mall_directory,color: Colors.black),
+            title: Text('Market',style: TextStyle(color:Colors.black),),
+          ),
         ],
          currentIndex: _selectedIndex,
          selectedItemColor: Colors.red[800],

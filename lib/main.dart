@@ -28,8 +28,11 @@ class _MyApp extends State<MyApp>{
       child: Consumer<AppState>(
         builder: (context, appState, _) {
           return MaterialApp(
-            // home:  Setup(key:widget.key),
-            home: DisplayShoppingCart(),
+            home:  Setup(key:widget.key),
+            // home: CategoryView(),
+            // home: DetailedCategoryView(),
+            // home: DetailedEntityView(),
+            // home: CheckOutAddress(),
           );
         },
       ),

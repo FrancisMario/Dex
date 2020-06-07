@@ -40,8 +40,7 @@ class DashBody extends StatefulWidget {
 
   @override
   Widget build(BuildContext context) {
-    String name = "Mario";
-    // Provider.of<AppState>(context, listen: true).cred.name;
+    String name =  Provider.of<AppState>(context, listen: true).cred.name;
     return 
      ListView(
          children:<Widget>[

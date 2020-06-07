@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 
 class ConfirmCode extends StatefulWidget {
    final String correctCode;
-   ConfirmCode(this.correctCode);
+   ConfirmCode(this.correctCode,{Key key}) : super(key : key);
 
     @override 
     _ConfirmCode createState() => _ConfirmCode();
@@ -49,7 +49,7 @@ class _ConfirmCode extends State<ConfirmCode> {
     return new Scaffold(
             body: new Container (
                 padding: const EdgeInsets.all(30.0),
-                color: Color.fromRGBO(221,44,0, 1),
+                // color: Color.fromRGBO(221,44,0, 1),
                 child: new Container(
                   child: new Center(
                     child: new Column(
@@ -91,10 +91,33 @@ class _ConfirmCode extends State<ConfirmCode> {
                       ),
                     ),
                     ),
-                      new Padding(padding: EdgeInsets.only(top: 10.0)),
-                      GestureDetector( 
-                    child: FlatButton(onPressed: (){
-                      if(!_isButtonDisabled){
+                      SizedBox(height: 1,),
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Text(""),
+                            ),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: (){
+                                  Navigator.of(context).pop();
+                                },
+                                  child: Text("Didn't recieve code.",style: TextStyle(fontSize:15,color: Colors.blue),),
+                              ),
+                            ),
+                          ],
+                        ),
+                      SizedBox(height: 10,),
+
+                         FlatButton(
+                        color: Colors.green,
+                        textColor: Colors.white,
+                        disabledColor: Colors.grey,
+                        disabledTextColor: Colors.black,
+                        padding: EdgeInsets.all(8.0),
+                        splashColor: Colors.blueAccent,
+                        onPressed: () async {
+                               if(!_isButtonDisabled){
                         setState(() {
                         _isButtonDisabled = true;
                         _buttonColor = Color.fromRGBO(98, 101, 103 ,1);
@@ -128,21 +151,13 @@ class _ConfirmCode extends State<ConfirmCode> {
                         }
                       } 
                       }
-                    }, child: Container(
-                      height: 50,
-                      width: 300,
-                      decoration: new BoxDecoration(
-                        color: _buttonColor,
-                        borderRadius: new BorderRadius.circular(5)
+                        },
+                        child: Text(
+                                              "Select",
+                                                style: TextStyle(fontSize: 20.0),
+                                             ),
                       ),
-                      child: new Center(
-                        child:Text('GO',
-                           style: new TextStyle(fontSize: 25.0),
-                        ),
-                      ),
-                    ),
-                    ),
-                      )
+
                      ]
                     )
                  ),

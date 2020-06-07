@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 
 
 class NewOrder extends StatefulWidget {
+  NewOrder({Key key}) : super(key: key);
+  
   _NewOrder createState()=>_NewOrder();
 }
 
@@ -199,12 +201,7 @@ class _NewOrder extends State<NewOrder> {
   ],
 ),
 
-
-                  Padding(padding: EdgeInsets.only(top:10),),
-
-                
-
-
+ Padding(padding: EdgeInsets.only(top:10),),
 
   Row(
     children: <Widget>[

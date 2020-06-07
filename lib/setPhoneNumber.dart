@@ -5,6 +5,7 @@ import 'package:dex/base.dart';
 import 'package:dex/confirmPhoneNumber.dart';
 import 'package:dex/dataStructures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart'
 as http;
 import 'package:provider/provider.dart';
@@ -16,6 +17,9 @@ import 'package:provider/provider.dart';
  * 
  */
 class SetPhone extends StatelessWidget {
+
+  SetPhone({Key key}) : super(key: key);
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,6 +37,7 @@ class Body extends StatefulWidget {
 class _Body extends State < Body > {
   // phone textbox box controller
   final _enterPhoneController = TextEditingController();
+  final _enterNameController = TextEditingController();
   //phone textbox key
   final _enterPhoneFormKey = GlobalKey < FormState > ();
   //correct code from server
@@ -48,66 +53,65 @@ class _Body extends State < Body > {
     super.dispose();
   }
 
+      _error(String err){
+      showError(err);
+              setState(() {
+                clickable = true;
+                _buttonDisplay =  new  Text('GO', style: new TextStyle(fontSize: 25.0),);
+              });
+      }
+       
 
-  _query(phone) async {
+
+  _query(phone,name) async {
     if (clickable) {
       setState(() {
         clickable = false;
        _buttonDisplay =  new CircularProgressIndicator(value: null, strokeWidth: 7.0,);
       });
+  String url = Provider.of<AppState>(context, listen: false).serverUrl;
+      
+  var response = await http.post(
+    "$url/market/loginUser.php",
+      body:{"name":name,"phone":phone}) 
+     .timeout(Duration(seconds: 10),onTimeout: (){
+      //  print("143423");
+      _error("Network Error.!");
+            
+    }).catchError((onError){
+      print("onError");
+      print(onError);
+      _error("Network Error.!");
+    });
 
-       final response = await http.post('http://34.67.233.153:3000/api/signin',
-                headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8',},
-                body: jsonEncode(<String, String>{
-                'phone': phone,
-                }),)
-        .timeout(
-          Duration(seconds:10),
-          onTimeout: (){
-           print("143423");
-             showError("Network Error, Check connection and try Again.");
-              setState(() {
-              clickable = true;
-              _buttonDisplay =  new  Text('GO', style: new TextStyle(fontSize: 25.0),);
-          });
-        });
 
-      // check the status code  for the result   
-      int statusCode = response.statusCode;
-
-      switch(statusCode){
+      switch(response.statusCode){
         case 200:
         try{
-          print("response =" + response.body);
            body = jsonDecode(response.body);
-           if(body['status']){
            print(body);
-              var ss = jsonEncode(<String, String>{
-                'phone': body['phone'],
-                'name': body['firstname'],
-                'user_id': body['uid'],
-            });
-  
-           Credential cred = new Credential.fromJson(jsonDecode(ss));
-           print("credn name: ${cred.name}");
-           print("credn phone: ${cred.phone}");
-           print("credn uid: ${cred.user_id}");
-           Provider.of<AppState>(context, listen: false).setCred(cred,false);
-          Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
-                            return ConfirmCode(body['code']); //skipping code verification till later
+          if(body['status'] == "200"){
+              Credential cred = new Credential.fromJson(body);
+              print("credn name: ${cred.name}");
+              print("credn phone: ${cred.phone}");
+              print("credn uid: ${cred.user_id}");
+              print("credn uid: ${body['code']}");  
+              Provider.of<AppState>(context, listen: false).setCred(cred,false);
+                  Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
+                            return ConfirmCode(body['code'],key: widget.key,); //skipping code verification till later
                             // return Home();
                           }));
-          
+            }
+          _error("Server Error");
           setState(() {
               clickable = true;
               _buttonDisplay =  new  Text('GO', style: new TextStyle(fontSize: 25.0),);
           });
-           } else {
-
-           }
+           
         } catch(e){
           print("something went wrong");
           print(e);
+          _error("Possible Server Error.");
           setState(() {
               clickable = true;
               _buttonDisplay =  new  Text('GO', style: new TextStyle(fontSize: 25.0),);
@@ -122,8 +126,7 @@ class _Body extends State < Body > {
           });
           break;
         default:
-        showError("Server Error");
-        print(statusCode);
+        _error("Possible Server Error.");
         setState(() {
               clickable = true;
               _buttonDisplay =  new  Text('GO', style: new TextStyle(fontSize: 25.0),);
@@ -162,51 +165,85 @@ class _Body extends State < Body > {
     return new Material(
       child: new Container(
         padding: const EdgeInsets.all(30.0),
-          color: Color.fromRGBO(221, 44, 0, 1),
+          // color: Color.fromRGBO(221, 44, 0, 1),
           child: new Container(
             child: new Center(
-              child: new Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+              child: new ListView(
                 children: [
                   //  new Padding(padding: EdgeInsets.only(top: 100.0)),
+                  SizedBox(height: 100,),
                   new Center(
                     child: Text('Enter phone To Login', style: new TextStyle(color: Colors.blue, fontSize: 20.0, fontFamily: "roboto"), )
                   ),
                   new Padding(padding: EdgeInsets.only(top: 20.0)),
                   Form(
                     key: _enterPhoneFormKey,
-                    child: new TextFormField(
-                      maxLength: 7,
-                      controller: _enterPhoneController,
-                      decoration: new InputDecoration(
-                        labelText: "Enter Phone",
-                        fillColor: Color.fromRGBO(62, 62, 62, 1),
-                        border: new OutlineInputBorder(
-                          borderRadius: new BorderRadius.circular(5.0),
-                          borderSide: new BorderSide(),
+                    child: Column(
+                      children:<Widget>[
+                       new TextFormField(
+                        maxLength: 7,
+                        controller: _enterPhoneController,
+                        decoration: new InputDecoration(
+                          labelText: "Enter Phone",
+                          fillColor: Color.fromRGBO(62, 62, 62, 1),
+                          border: new OutlineInputBorder(
+                            borderRadius: new BorderRadius.circular(5.0),
+                            borderSide: new BorderSide(),
+                          ),
+                        ),
+                        validator: (val) {
+                          if (val.isEmpty) {
+                            return "phone cannot be empty";
+                          } else {
+                            return null;
+                          }
+                        },
+                        keyboardType: TextInputType.phone,
+                        style: new TextStyle(
+                          fontFamily: "Poppins",
                         ),
                       ),
-                      validator: (val) {
-                        if (val.isEmpty) {
-                          return "phone cannot be empty";
-                        } else {
-                          return null;
-                        }
-                      },
-                      keyboardType: TextInputType.phone,
-                      style: new TextStyle(
-                        fontFamily: "Poppins",
+                      SizedBox(height: 10,),
+                       new TextFormField(
+                        controller: _enterNameController,
+                        decoration: new InputDecoration(
+                          labelText: "Enter FullName",
+                          fillColor: Color.fromRGBO(62, 62, 62, 1),
+                          border: new OutlineInputBorder(
+                            borderRadius: new BorderRadius.circular(5.0),
+                            borderSide: new BorderSide(),
+                          ),
+                        ),
+                        validator: (val) {
+                          if (val.isEmpty) {
+                            return "name cannot be empty";
+                          } else {
+                            return null;
+                          }
+                        },
+                        keyboardType: TextInputType.text,
+                        style: new TextStyle(
+                          fontFamily: "Poppins",
+                        ),
                       ),
+                      ]
                     ),
-                  ),
-                  new Padding(padding: EdgeInsets.only(top: 10.0)),
-                  GestureDetector(
-                    child: FlatButton(onPressed: () async {
 
-                      if (_enterPhoneController.value.text.length >= 7 && clickable) {
+                  ),
+                  SizedBox(height:10),
+                   FlatButton(
+                        color: Colors.green,
+                        textColor: Colors.white,
+                        disabledColor: Colors.grey,
+                        disabledTextColor: Colors.black,
+                        padding: EdgeInsets.all(8.0),
+                        splashColor: Colors.blueAccent,
+                        onPressed: () async {
+                      if (_enterPhoneController.value.text.length >= 7 && clickable && _enterNameController.value.text.length >= 4) {
                         print("going");
-                        if (await _query(_enterPhoneController.text)) {
+                        if (await _query(_enterPhoneController.text,_enterNameController.text)) {
+                          print("phone ${_enterPhoneController.text}");
+                          print("name ${_enterNameController.text}");
                           print("navigating to confirm code");
                         }
                       } else {
@@ -217,20 +254,9 @@ class _Body extends State < Body > {
                             _buttonDisplay =  new  Text('GO', style: new TextStyle(fontSize: 25.0),);
                           });
                       }
-
-                    }, 
-                    child: Container(  
-                      height: 50,
-                      width: 300,
-                      decoration: new BoxDecoration(
-                        color: Color.fromRGBO(62, 62, 62, 1),
-                        borderRadius: new BorderRadius.circular(5)
+                        },
+                        child: _buttonDisplay
                       ),
-                      child: new Center(
-                        child:_buttonDisplay
-                    ), ),
-                  ),
-                  )
                 ]
               )
             ),

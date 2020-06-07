@@ -15,17 +15,6 @@ class CategoryView extends StatefulWidget {
   @override
   _CategoryViewState createState() => _CategoryViewState();
 
-  var data = [
-    {"name":"Pharmaticals","id":"1234","icon":Icons.scanner},
-    {"name":"Pharmaticals","id":"1234","icon":Icons.scanner},
-    {"name":"Pharmaticals","id":"1234","icon":Icons.scanner},
-    {"name":"Pharmaticals","id":"1234","icon":Icons.scanner},
-    {"name":"Pharmaticals","id":"1234","icon":Icons.scanner},
-    {"name":"Pharmaticals","id":"1234","icon":Icons.scanner},
-    {"name":"Pharmaticals","id":"1234","icon":Icons.scanner}
-  ];
-
-
 
 
 }
@@ -34,12 +23,10 @@ class _CategoryViewState extends State<CategoryView> {
 
 Future<dynamic> getData(BuildContext context) async{    
   String url = Provider.of<AppState>(context, listen: false).serverUrl;
-  Dio dio = new Dio();
-  dio.options.baseUrl = url;
 
 // Optionally the request above could also be done as
-  var response = await http.get(
-    "$url/market/marketList.php"
+  var response = await http.post(
+    "$url/market/getAllVisibleCategories.php"
   ).timeout(Duration(seconds: 10),onTimeout: (){
       // showError("NetWork Error, Please Try Again");
       print("timeout reached");
@@ -52,12 +39,8 @@ Future<dynamic> getData(BuildContext context) async{
      switch (response.statusCode) {
           case 200:
             print("200");
-            print(response.body);
+            print("response.body");
             return response.body;
-          break;
-          case 403:
-            print("403");
-            print(response);
           break;
           default:
             print("Error");
@@ -65,6 +48,7 @@ Future<dynamic> getData(BuildContext context) async{
           break;
         }
   }else {
+    print("response WAS NULL");
     print(response);
   }
     
@@ -74,7 +58,7 @@ Future<dynamic> getData(BuildContext context) async{
   Widget build(BuildContext context) {
     return Container(
        child: Center(
-        child: FutureBuilder<dynamic>(
+        child: FutureBuilder(
           ///If future is null then API will not be called as soon as the screen
           ///loads. This can be used to make this Future Builder dependent
           ///on a button click.
@@ -103,14 +87,15 @@ Future<dynamic> getData(BuildContext context) async{
                   return Text("Error");
                 }
                 print("snapshot data: ${snapshot.data}");
-                var data;
+                var data1;
                 try{
-                data = json.decode(snapshot.data);
+                data1 = json.decode(snapshot.data);
                 } catch(e){
                   return Text("Error parsing json");
                 }             
-                print(data);
-                return  _body(data);
+                print(data1[0]);
+                print(data1[0]['category_name']);
+                return  _body(data1);
             }
           },
         ),
@@ -118,7 +103,11 @@ Future<dynamic> getData(BuildContext context) async{
     );
   }
 
-  Widget _body(List<dynamic> data){
+  Widget _body(List data){
+  String url = Provider.of<AppState>(context, listen: false).serverUrl;
+                print(data[0]['category_name']);
+                print(data[0]['category_name']);
+                print(data[0]['category_name']);
     return 
     Scaffold(
          appBar:AppBar(title:Text("Market Place")),
@@ -132,7 +121,7 @@ Future<dynamic> getData(BuildContext context) async{
                 GestureDetector(
                   onTap: (){
                     Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
-                           return DetailedCategoryView(key: widget.key,id:data[index]["id"],img:data[index]["image"]); //Going back to the new order start page
+                           return DetailedCategoryView(key: widget.key,id:data[index]["category_id"],img:data[index]["category_img"],name:data[index]["category_name"]); //Going back to the new order start page
                     }));
                    },
                   child: Expanded(
@@ -142,7 +131,7 @@ Future<dynamic> getData(BuildContext context) async{
                         Expanded( 
                           child: 
                           Image.network( 
-                          data[index]["image"],
+                          url+"/market/"+data[index]["category_img"],
                           fit: BoxFit.cover,
                           )
                           ),
@@ -173,12 +162,13 @@ Future<dynamic> getData(BuildContext context) async{
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
-                            Text(data[index]['name'],style: TextStyle(
+                            Text(data[index]['category_name'],style: TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                               letterSpacing: 1.2
                             ),),
+                            // Text(url+data[index]['image']),
                         ],),
                       ),
                       ]
