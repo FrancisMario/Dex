@@ -39,7 +39,7 @@ class _Settings extends State<Settings> {
           body: TabBarView(
             children: [
                 OrderOptions(),
-                Tracking(widget.key),
+                Tracking(key:widget.key),
               ],
           ),
         ),

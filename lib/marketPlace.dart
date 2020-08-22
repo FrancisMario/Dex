@@ -26,7 +26,7 @@ Future<dynamic> getData(BuildContext context) async{
 
 // Optionally the request above could also be done as
   var response = await http.post(
-    "$url/market/getAllVisibleCategories.php"
+    "$url/getAllVisibleCategories.php"
   ).timeout(Duration(seconds: 10),onTimeout: (){
       // showError("NetWork Error, Please Try Again");
       print("timeout reached");
@@ -39,7 +39,7 @@ Future<dynamic> getData(BuildContext context) async{
      switch (response.statusCode) {
           case 200:
             print("200");
-            print("response.body");
+            print(response.body);
             return response.body;
           break;
           default:
@@ -86,6 +86,14 @@ Future<dynamic> getData(BuildContext context) async{
                   print(snapshot.error); 
                   return Text("Error");
                 }
+                // if the response is 404
+                if(snapshot.data.toString().trim() == "404"){
+                  return Container(
+                    child: Text("No categories added yet.!"),
+                  );
+                } else {
+
+
                 print("snapshot data: ${snapshot.data}");
                 var data1;
                 try{
@@ -97,6 +105,7 @@ Future<dynamic> getData(BuildContext context) async{
                 print(data1[0]['category_name']);
                 return  _body(data1);
             }
+                }
           },
         ),
       ),
@@ -131,7 +140,7 @@ Future<dynamic> getData(BuildContext context) async{
                         Expanded( 
                           child: 
                           Image.network( 
-                          url+"/market/"+data[index]["category_img"],
+                          url+"/"+data[index]["category_img"],
                           fit: BoxFit.cover,
                           )
                           ),

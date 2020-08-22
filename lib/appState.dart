@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:dex/dataStructures.dart';
 import 'package:dex/product.dart';
 import 'package:dex/database.dart';
@@ -18,12 +20,14 @@ class AppState with ChangeNotifier{
 
     // Cart stuff
       Address cartAddress = null;
-      List<Product> cartProducts = null;
+      List<String> cart  = null;
+      // List<Product> cartProducts = [];
+      
 
 
       DatabaseHandler dbhdl = new DatabaseHandler();
 
-      String serverUrl = "http://192.168.137.1";
+      String serverUrl = "https://api.v1.odudostudios.com/";
 
       Stat stat = null;
       Stat get _stat => stat;

@@ -70,13 +70,13 @@ class _Body extends State < Body > {
        _buttonDisplay =  new CircularProgressIndicator(value: null, strokeWidth: 7.0,);
       });
   String url = Provider.of<AppState>(context, listen: false).serverUrl;
-      
+      print("object");
   var response = await http.post(
     "$url/market/loginUser.php",
       body:{"name":name,"phone":phone}) 
-     .timeout(Duration(seconds: 10),onTimeout: (){
+     .timeout(Duration(seconds: 10),onTimeout: (){  
       //  print("143423");
-      _error("Network Error.!");
+      _error("Network Error q.!");
             
     }).catchError((onError){
       print("onError");
@@ -84,6 +84,7 @@ class _Body extends State < Body > {
       _error("Network Error.!");
     });
 
+      print("object 1");
 
       switch(response.statusCode){
         case 200:
@@ -114,6 +115,7 @@ class _Body extends State < Body > {
           _error("Possible Server Error.");
           setState(() {
               clickable = true;
+              
               _buttonDisplay =  new  Text('GO', style: new TextStyle(fontSize: 25.0),);
           });
           return false;
@@ -246,6 +248,7 @@ class _Body extends State < Body > {
                           print("name ${_enterNameController.text}");
                           print("navigating to confirm code");
                         }
+                        print("going failed");
                       } else {
                         print(clickable);
                         showError("Error,  Invalid Phone Number ");

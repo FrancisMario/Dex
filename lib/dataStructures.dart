@@ -19,7 +19,8 @@ class OrderPackage {
    String package_size;
    String package_description;
    String delivery_note;
-
+   String pickupLocation;
+   String deliveryLocation;
 
   //    Map<String, dynamic> toMap() {
   //   return {
@@ -168,11 +169,11 @@ class Record {
   }
  factory Record.fromJson(Map<String, dynamic> json) {
     return Record(
-      time: json['time'],
-      date: json['date'],
+      time: json['order_time'],
+      date: json['order_date'],
       name: json['name'],
-      contact: json['contact'],
-      address: json['address'],
+      contact: json['phone'],
+      address: json['delivery_address'],
     );
   }
 }

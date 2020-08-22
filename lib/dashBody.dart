@@ -1,4 +1,5 @@
 import 'package:dex/appState.dart';
+import 'package:dex/orderOptions.dart';
 import 'package:dex/selectPlan.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,24 +13,6 @@ class DashBody extends StatefulWidget {
 
   class _DashBody extends State<DashBody> {
 
-    // svg Image assets  
-    final Widget subcription = SvgPicture.asset(
-        "assets/subscription.svg",
-        semanticsLabel: 'Acme Logo',
-        
-    );
-    final Widget clock = SvgPicture.asset(
-        "assets/clock.svg",
-        semanticsLabel: 'Acme Logo',
-    );
-    final Widget user = SvgPicture.asset(
-        "assets/user.svg",
-        semanticsLabel: 'Acme Logo',
-    );
-    final Widget dish = SvgPicture.asset(
-        "assets/dish.svg",
-        semanticsLabel: 'Acme Logo',
-    );
     
     // TExt Styling
    TextStyle _title  =  new TextStyle( fontFamily: "Roboto",fontSize:30,fontWeight: FontWeight.bold,color: Colors.white);
@@ -40,9 +23,11 @@ class DashBody extends StatefulWidget {
 
   @override
   Widget build(BuildContext context) {
-    String name =  Provider.of<AppState>(context, listen: true).cred.name;
+    // String name =  Provider.of<AppState>(context, listen: true).cred.name;
     return 
      ListView(
+       addAutomaticKeepAlives: true,
+       physics: BouncingScrollPhysics(),
          children:<Widget>[
      Container(
       child: Center(
@@ -59,7 +44,8 @@ class DashBody extends StatefulWidget {
                   Padding(padding: EdgeInsets.all(5)),
                   Text("Welcome Back",style: _normal,),
                   Padding(padding: EdgeInsets.only(top:2)),
-                  Text( name ,style: _title,),
+                  // Text( name ,style: _title,),
+                  Text( "name" ,style: _title,),
                       Divider(
                             thickness: 1,
                             color: Colors.black,
@@ -76,7 +62,7 @@ class DashBody extends StatefulWidget {
              Container(
                decoration: BoxDecoration(
                  borderRadius:new  BorderRadius.circular(2.0),
-                 color: Colors.blueAccent,
+                 color: Color.fromRGBO(184, 16, 10,10),
                    boxShadow: [
                          BoxShadow(
                               color: Colors.black26,
@@ -108,7 +94,6 @@ class DashBody extends StatefulWidget {
                        },
                        child:Container(
                          decoration: BoxDecoration(
-                              border: Border.all(color: Colors.purple),
                               borderRadius:new  BorderRadius.circular(2.0),
                               color: Colors.pinkAccent,
                               boxShadow: [
@@ -127,7 +112,7 @@ class DashBody extends StatefulWidget {
                          height: 40,
                          child: Center(
                            child:
-                           Text("Change Plan",style: _normalBig,
+                           Text("Price List",style: _normalBig,
                            )
                           ),
                       ),
@@ -137,128 +122,7 @@ class DashBody extends StatefulWidget {
                ),
              ),
 
-
-            Padding(padding: EdgeInsets.only(top:20)),
-            Text("Other Services",style: _normal,),
-
-            Padding(padding: EdgeInsets.only(top:5)),
-              Container(
-              decoration: BoxDecoration(
-                 borderRadius:new  BorderRadius.circular(2.0),
-                 color: Colors.blueAccent,
-                   boxShadow: [
-                         BoxShadow(
-                              color: Colors.blueGrey,
-                              blurRadius: 10.0, // has the effect of softening the shadow
-                              spreadRadius: 5.0, // has the effect of extending the shadow
-                             offset: Offset(
-                                5.0, // horizontal, move right 10
-                               5.0, // vertical, move down 10
-                              ),
-                            )
-                          ],
-                      ),
-               width: 310,
-               height: 70,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children:<Widget>[
-                  Expanded(flex:3,child: Center(child:Image.asset('assets/dish.png',height: 50,width: 50,),)),
-                  Expanded(flex:7,child: Container(
-                    child:Center(
-                    child: Column(
-                      children: <Widget>[
-                        Padding(padding: EdgeInsets.only(top:15)),
-                          Text("Cash Deposits",style: _title,),
-                      ],
-                     ),
-                    ),
-                   ),
-                  ),
-                ]
-                ),
-            ),
-
-
-            Padding(padding: EdgeInsets.only(top:10)),
-            Container(
-              decoration: BoxDecoration(
-                 borderRadius:new  BorderRadius.circular(2.0),
-                 color: Colors.blueAccent,
-                   boxShadow: [
-                         BoxShadow(
-                              color: Colors.blueGrey,
-                              blurRadius: 10.0, // has the effect of softening the shadow
-                              spreadRadius: 5.0, // has the effect of extending the shadow
-                             offset: Offset(
-                                5.0, // horizontal, move right 10
-                               5.0, // vertical, move down 10
-                              ),
-                            )
-                          ],
-                      ),
-               width: 310,
-               height: 70,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children:<Widget>[
-                 Expanded(flex:3,child: Center(child:Image.asset('assets/dish.png',height: 50,width: 50,),)),
-                  Expanded(flex:7,child: Container(
-                    child:Center(
-                    child: Column(
-                      children: <Widget>[
-                        Padding(padding: EdgeInsets.only(top:15)),
-                          Text("Food Deliveries",style: _title,),
-                      ],
-                     ),
-                    ),
-                   ),
-                  ),
-                ]
-                ),
-            ),
-            
-             Padding(padding: EdgeInsets.only(top:10)),
-            Container(
-              decoration: BoxDecoration(
-                 borderRadius:new  BorderRadius.circular(2.0),
-                 color: Colors.blueAccent,
-                   boxShadow: [
-                         BoxShadow(
-                              color: Colors.blueGrey,
-                              blurRadius: 10.0, // has the effect of softening the shadow
-                              spreadRadius: 5.0, // has the effect of extending the shadow
-                             offset: Offset(
-                                5.0, // horizontal, move right 10
-                               5.0, // vertical, move down 10
-                              ),
-                            )
-                          ],
-                      ),
-               width: 310,
-               height: 70,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children:<Widget>[
-                  Expanded(flex:3,child: Center(child:Image.asset('assets/subscription.png',height: 50,width: 50,),)),
-                  Expanded(flex:7,child: Container(
-                    child:Center(
-                    child: Column(
-                      children: <Widget>[
-                        Padding(padding: EdgeInsets.only(top:15)),
-                          Text("One Of Delivery",style: _title,),
-                      ],
-                     ),
-                    ),
-                   ),
-                  ),
-                ]
-                ),
-            ),
-        Padding(padding: EdgeInsets.only(bottom:10)),
+            OrderOptions(),
                 ],
               ),
             ],

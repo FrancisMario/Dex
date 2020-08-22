@@ -1,4 +1,5 @@
 import 'package:dex/appState.dart';
+import 'package:dex/base.dart';
 import 'package:dex/checkOutAddress.dart';
 import 'package:dex/detailedEntityView.dart';
 import 'package:dex/entityList.dart';
@@ -28,7 +29,13 @@ class _MyApp extends State<MyApp>{
       child: Consumer<AppState>(
         builder: (context, appState, _) {
           return MaterialApp(
-            home:  Setup(key:widget.key),
+            theme: ThemeData(
+          // This is the theme of your application.
+              primarySwatch: Colors.red,
+            ),
+            debugShowCheckedModeBanner: false,
+            home:  Home(key:widget.key),
+            // home:  Setup(key:widget.key),
             // home: CategoryView(),
             // home: DetailedCategoryView(),
             // home: DetailedEntityView(),

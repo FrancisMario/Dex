@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 
 
 
-class Setup extends StatefulWidget{
+class  Setup extends StatefulWidget{
    Setup({Key key}) : super(key: key);
    @override
    _Setup createState() => _Setup();

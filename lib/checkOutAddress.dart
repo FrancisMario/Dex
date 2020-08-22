@@ -1,22 +1,28 @@
 import 'dart:convert';
 
 import 'package:dex/appState.dart';
+import 'package:dex/checkOut.dart';
 import 'package:dex/dataStructures.dart';
+import 'package:dex/normalAddress.dart';
+import 'package:dex/smartAddress.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+
 
 class CheckOutAddress extends StatefulWidget {
   final String parent;
   final String title;
+  final Map data;
 
-  CheckOutAddress({Key key, this.parent = 'null', this.title = "Addresses"})
+  CheckOutAddress({Key key, this.parent = 'null', this.title = "My Addresses", this.data})
       : super(key: key);
   List<Widget> items = List();
   _Address createState() => _Address();
 }
 
 class _Address extends State<CheckOutAddress> {
+ 
   deleteAddress(String id, BuildContext context) async {
     String url = Provider.of<AppState>(context, listen: false).serverUrl;
     String user_id = Provider.of<AppState>(context, listen: false).cred.user_id;
@@ -39,24 +45,55 @@ class _Address extends State<CheckOutAddress> {
       case 200:
         print("200");
         showMessage("Address deleted");
+        return true;
         break;
       default:
         // if server error occurs. 404, 500 etc.
         print("Error");
         print(response.statusCode);
         showMessage("ERROR. Address was Not deleted");
+        return false;
         break;
     }
   }
 
-  Future<dynamic> getData(BuildContext context) async {
+    isCharacter(String a){
+        List b = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
+        List c = ['1','2','3','4','5','6','7','8','9','0','-','=','"',"'",'<','>','/','\\',' ',':',';','!','@','#','\$','%','^','&','*','(',')','_','+','.',',','[',']','{','}'];
+
+        if (b.contains(a.toLowerCase().trim()) || c.contains(a)) {
+            return true; 
+        }
+
+        return false;
+  }
+
+  prepString(String a){
+      
+      var b = a.split('');
+      var c = '';
+      for (var item in b) {
+        if (isCharacter(item)) {
+          c += item;
+          print("++++++$item");
+        } else {
+          c += '\\n';
+          print("-----$item");
+        }
+      }
+      return c;
+  }
+
+
+
+  Future<dynamic> getData() async {
     String url = Provider.of<AppState>(context, listen: false).serverUrl;
     String user_id = Provider.of<AppState>(context, listen: false).cred.user_id;
 
 // Optionally the request above could also be done as
     var response = await http.post(
       "$url/market/getAddress.php",
-      body: {user_id: user_id},
+      body: {"user_id": user_id},
     ).timeout(Duration(seconds: 10), onTimeout: () {
       // showError("NetWork Error, Please Try Again");
       print("timeout reached");
@@ -72,9 +109,11 @@ class _Address extends State<CheckOutAddress> {
         var data;
         if (response.body != "404") {
           try {
-            data = json.decode(response.body);
+            data = prepString(response.body);
+            data = json.decode(data);
           } catch (e) {
             // if server sends malformed data.
+            print(e);
             return null;
           }
           return data;
@@ -89,8 +128,36 @@ class _Address extends State<CheckOutAddress> {
     }
   }
 
+   showMessage(String massage) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Alert"),
+            content: Text(massage),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Close"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        });
+  }         
+
+  Future getData0;
+
+   @override
+  void initState() {
+    super.initState();
+    getData0 = getData();
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: Center(
         child: FutureBuilder<dynamic>(
@@ -98,7 +165,7 @@ class _Address extends State<CheckOutAddress> {
           ///loads. This can be used to make this Future Builder dependent
           ///on a button click.
           // future: _dummyData,
-          future: getData(context),
+          future: getData0,
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
 
@@ -138,7 +205,7 @@ class _Address extends State<CheckOutAddress> {
                 print('==========================================');
                 var intermediate = null;
                 if (snapshot.data == "404") {
-                  intermediate = json.decode('[]');
+                  intermediate = json.decode('[]'); // simulating an empty array.
                 } else {
                   intermediate = snapshot.data;
                 }
@@ -152,19 +219,35 @@ class _Address extends State<CheckOutAddress> {
                           Expanded(
                               flex: 4,
                               child: FlatButton(
-                                color: Colors.blue,
+                                color: Colors.blueGrey,
                                 textColor: Colors.white,
                                 disabledColor: Colors.grey,
                                 disabledTextColor: Colors.black,
                                 padding: EdgeInsets.all(8.0),
                                 splashColor: Colors.blueAccent,
-                                onPressed: () {
-                                  /*...*/
-                                },
-                                child: Text(
-                                  "Back",
-                                  style: TextStyle(fontSize: 20.0),
-                                ),
+                                onPressed: () async{
+                                var result = await Navigator.of(context).push(MaterialPageRoute( builder: (BuildContext context){return NormalAddress();}));
+
+                                    if (!result == null) {
+                                      try{
+                                      var a = json.decode(result);
+                                      widget.items.add(_addressCard(a));
+                                      setState(() {
+                                        
+                                      });
+                                      }
+                                      catch(e){
+                                        print(e);
+                                      }
+                                    }
+
+                                  },
+                                child:
+                                Row(children: <Widget>[
+                                 Text("",style: TextStyle(fontSize: 15.0,color: Colors.white),),
+                                 Expanded(child: Text(" Normal Address",style: TextStyle(fontSize: 20.0,color: Colors.white),overflow: TextOverflow.ellipsis,)),
+
+                                ],)
                               )),
                           Expanded(
                             flex: 1,
@@ -173,63 +256,35 @@ class _Address extends State<CheckOutAddress> {
                           Expanded(
                               flex: 4,
                               child: FlatButton(
-                                color: Colors.blue,
+                                color: Colors.green,
                                 textColor: Colors.white,
                                 disabledColor: Colors.grey,
                                 disabledTextColor: Colors.black,
                                 padding: EdgeInsets.all(8.0),
                                 splashColor: Colors.blueAccent,
-                                onPressed: () {
-                                  showDialog(
-                                      context: context,
-                                      child: Container(
-                                          child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          GestureDetector(
-                                            onTap: () {
-                                              // Redirect to the page
-                                              print("object");
-                                              normalAddress();
-                                            },
-                                            child: Container(
-                                              color: Colors.white,
-                                              height: 150,
-                                              width: 150,
-                                              child: Center(
-                                                child: 
-                                                    Text("Normal", style: TextStyle(fontSize: 20,color: Colors.black),
-                                                    
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                            SizedBox(width: 10,),
-                                           GestureDetector(
-                                            onTap: () {
-                                              // Redirect to the page
-                                            print("object1");
-                                            smartAddress();
-                                            },
-                                            child: Container(
-                                              color: Colors.white,
-                                              height: 150,
-                                              width: 150,
-                                              child: Center(
-                                                child: Text( "Smart", style: TextStyle( fontSize: 20,color: Colors.black),
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      )));
+                                onPressed: () async{
+                                  var result = await Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){return SmartAddress();}));
+                                    
+                                    if (!result == null) {
+                                      try{
+                                      var a = json.decode(result);
+                                      setState(() {
+                                      widget.items.add(_addressCard(a));
+                                      });
+                                      }
+                                      catch(e){
+                                        print(e);
+                                      }
+                                    }
                                 },
-                                child: Text(
-                                  "Add Address",
-                                  style: TextStyle(fontSize: 20.0),
-                                ),
-                              ))
+                                child:
+                                Row(children: <Widget>[
+                                 Text("",style: TextStyle(fontSize: 15.0,color: Colors.white),),
+                                 Text(" Smart Address",style: TextStyle(fontSize: 20.0,color: Colors.white),),
+
+                                ],)
+                              )
+                              )
                         ],
                       ),
                     ),
@@ -243,15 +298,27 @@ class _Address extends State<CheckOutAddress> {
                       SliverAppBar(
                         // title:Text("Hello World"),
                         expandedHeight: 150.0,
-                        floating: false,
+                        floating: true,
                         pinned: true,
                         flexibleSpace: FlexibleSpaceBar(
                           centerTitle: true,
-                          title: Text(widget.title),
-                          background: Image.network(
-                            "" //TODO
-                            ,
-                            fit: BoxFit.cover,
+                          title: Text(widget.title,style: TextStyle(
+                            color: Colors.white
+                            ),
+                          ),
+                          background: 
+                          Stack(
+                            fit: StackFit.expand,
+                            children: <Widget>[
+                              Image.asset(
+                                "assets/mapHeader.png",
+                                fit: BoxFit.cover,
+                              ),
+                              Container(
+                                width: MediaQuery.of(context).size.width,
+                                color: Colors.black12,
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -316,7 +383,8 @@ class _Address extends State<CheckOutAddress> {
               onPressed: () {
                 Provider.of<AppState>(context, listen: false).cartAddress =
                     Address.fromJson(item);
-                //TODO Navigate to check out.
+                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){return CheckOut();}));
+
               },
               child: Text(
                 "Select",
@@ -329,336 +397,11 @@ class _Address extends State<CheckOutAddress> {
     }
   }
 
-  Widget smartAddress() {
-    // phone textbox box controller
-    final _addressNameController = TextEditingController();
-    final _addressDescriptionController = TextEditingController();
-    return Scaffold(
-      appBar: AppBar(title: Text("Smart Address")),
-      body: Container(
-        margin: EdgeInsets.all(20),
-        child: ListView(
-          physics: BouncingScrollPhysics(),
-          children: <Widget>[
-            SizedBox(height: 10),
-            Container(
-              width: MediaQuery.of(context).size.width - 10,
-              child: Text(
-                "Smart  Addresses are very acurate, they enable us to quicky locate you. However, you have to be physicaly at the address to add it.",
-                overflow: TextOverflow.clip,
-                style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
-              ),
-            ),
-            SizedBox(height: 10),
-            new TextFormField(
-              maxLength: 10,
-              controller: _addressNameController,
-              decoration: new InputDecoration(
-                labelText: "Give this address a name.",
-                fillColor: Color.fromRGBO(62, 62, 62, 1),
-                border: new OutlineInputBorder(
-                  borderRadius: new BorderRadius.circular(5.0),
-                  borderSide: new BorderSide(),
-                ),
-              ),
-              validator: (val) {
-                if (val.isEmpty) {
-                  return "phone cannot be empty";
-                } else {
-                  return null;
-                }
-              },
-              keyboardType: TextInputType.text,
-              style: new TextStyle(
-                fontFamily: "Poppins",
-              ),
-            ),
-            SizedBox(height: 10),
-            new TextFormField(
-              maxLines: 3,
-              controller: _addressDescriptionController,
-              decoration: new InputDecoration(
-                labelText: "Add some descriptions will ya?",
-                fillColor: Color.fromRGBO(62, 62, 62, 1),
-                border: new OutlineInputBorder(
-                  borderRadius: new BorderRadius.circular(5.0),
-                  borderSide: new BorderSide(),
-                ),
-              ),
-              validator: (val) {
-                if (val.isEmpty) {
-                  return "phone cannot be empty";
-                } else {
-                  return null;
-                }
-              },
-              keyboardType: TextInputType.multiline,
-              style: new TextStyle(
-                fontFamily: "Poppins",
-              ),
-            ),
-            SizedBox(height: 10),
-            FlatButton(
-              color: Colors.green,
-              textColor: Colors.white,
-              disabledColor: Colors.grey,
-              disabledTextColor: Colors.black,
-              padding: EdgeInsets.all(8.0),
-              splashColor: Colors.blueAccent,
-              onPressed: () async {
-                if (_addressNameController.value.text != "" &&
-                    _addressDescriptionController.value.text != "") {
-                  _saveSmartAddress(_addressNameController.value.text,
-                      _addressDescriptionController.value.text, "mm");
-                } else {
-                  showMessage("You must fill all fields");
-                }
-              },
-              child: Container(
-                width: 200,
-                height: 50,
-                child: Center(
-                  child: Text(
-                    "SAVE",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget normalAddress() {
-    // phone textbox box controller
-    final _addressNameController = TextEditingController();
-    final _addressDescriptionController = TextEditingController();
-    final _addressLocationController = TextEditingController();
-    return Scaffold(
-      appBar: AppBar(title: Text("Normal Address")),
-      body: Container(
-        margin: EdgeInsets.all(20),
-        child: ListView(
-          physics: BouncingScrollPhysics(),
-          children: <Widget>[
-            SizedBox(height: 10),
-            Container(
-              width: MediaQuery.of(context).size.width - 10,
-              child: Text(
-                "Normal Addresses are alot less acurate than smart address. They require a detailed description of the location.",
-                overflow: TextOverflow.clip,
-                style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
-              ),
-            ),
-            SizedBox(height: 10),
-            new TextFormField(
-              maxLength: 10,
-              controller: _addressNameController,
-              decoration: new InputDecoration(
-                labelText: "Give this address a name.",
-                fillColor: Color.fromRGBO(62, 62, 62, 1),
-                border: new OutlineInputBorder(
-                  borderRadius: new BorderRadius.circular(5.0),
-                  borderSide: new BorderSide(),
-                ),
-              ),
-              validator: (val) {
-                if (val.isEmpty) {
-                  return "phone cannot be empty";
-                } else {
-                  return null;
-                }
-              },
-              keyboardType: TextInputType.text,
-              style: new TextStyle(
-                fontFamily: "Poppins",
-              ),
-            ),
-            SizedBox(height: 10),
-            new TextFormField(
-              maxLines: 3,
-              controller: _addressDescriptionController,
-              decoration: new InputDecoration(
-                labelText: "Add some descriptions will ya?",
-                fillColor: Color.fromRGBO(62, 62, 62, 1),
-                border: new OutlineInputBorder(
-                  borderRadius: new BorderRadius.circular(5.0),
-                  borderSide: new BorderSide(),
-                ),
-              ),
-              validator: (val) {
-                if (val.isEmpty) {
-                  return "phone cannot be empty";
-                } else {
-                  return null;
-                }
-              },
-              keyboardType: TextInputType.multiline,
-              style: new TextStyle(
-                fontFamily: "Poppins",
-              ),
-            ),
-            SizedBox(height: 10),
-            new TextFormField(
-              maxLines: 7,
-              controller: _addressLocationController,
-              decoration: new InputDecoration(
-                // labelText: "Describe the Location.",
-                hintText: "eg. West-Coast-Region  Serekunda  Bamboo",
-                hintStyle: TextStyle(wordSpacing: 1000, fontSize: 20),
-                fillColor: Color.fromRGBO(62, 62, 62, 1),
-                border: new OutlineInputBorder(
-                  borderRadius: new BorderRadius.circular(5.0),
-                  borderSide: new BorderSide(),
-                ),
-              ),
-              validator: (val) {
-                if (val.isEmpty) {
-                  return "this camnnot be empty";
-                } else {
-                  return null;
-                }
-              },
-              keyboardType: TextInputType.multiline,
-              style: new TextStyle(
-                fontFamily: "Poppins",
-              ),
-            ),
-            SizedBox(height: 10),
-            FlatButton(
-              color: Colors.green,
-              textColor: Colors.white,
-              disabledColor: Colors.grey,
-              disabledTextColor: Colors.black,
-              padding: EdgeInsets.all(8.0),
-              splashColor: Colors.blueAccent,
-              onPressed: () async {
-                if (_addressNameController.value.text != "" &&
-                    _addressDescriptionController.value.text != "" &&
-                    _addressLocationController.value.text != "") {
-                  _saveNormalAddress(
-                      _addressNameController.value.text,
-                      _addressDescriptionController.value.text,
-                      _addressLocationController.value.text);
-                } else {
-                  showMessage("You must fill all fields");
-                }
-              },
-              child: Container(
-                width: 200,
-                height: 50,
-                child: Center(
-                  child: Text(
-                    "SAVE",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  _saveNormalAddress(String name, String description, String location) async {
-    String url = Provider.of<AppState>(context, listen: false).serverUrl;
-    String user_id = Provider.of<AppState>(context, listen: false).cred.user_id;
-
-    var response = await http.post("$url/market/addAddress.php", body: {
-      "user_id": user_id,
-      "name": name,
-      "description": description,
-      "coordinates": location,
-      "type": "normal"
-    }).timeout(Duration(seconds: 10), onTimeout: () {
-      print("timeout reached");
-    }).catchError((onError) {
-      print("onError");
-      print(onError);
-    });
-
-    switch (response.statusCode) {
-      case 200:
-        print("200");
-        print(response.body);
-        await showMessage("Address was Successfully Added.");
-        widget.items.add(_addressCard({
-          "user_id": user_id,
-          "name": name,
-          "description": description,
-          "coordinates": location,
-          "type": "normal"
-        }));
-        break;
-      default:
-        await showMessage("Sorry, there was an error.");
-        print("Error");
-        print(response.statusCode);
-        break;
-    }
-    Navigator.of(context).pop();
-  }
-
-  _saveSmartAddress(String name, String description, String location) async {
-    String url = Provider.of<AppState>(context, listen: false).serverUrl;
-    String user_id = Provider.of<AppState>(context, listen: false).cred.user_id;
-
-    var response = await http.post("$url/market/addAddress.php", body: {
-      "user_id": user_id,
-      "name": name,
-      "description": description,
-      "type": "smart",
-      "coordinates": "{'lat':'','long':''}"
-    }).timeout(Duration(seconds: 10), onTimeout: () {
-      print("timeout reached");
-    }).catchError((onError) {
-      print("onError");
-      print(onError);
-    });
-
-    switch (response.statusCode) {
-      case 200:
-        print("200");
-        print(response.body);
-        widget.items.add(_addressCard({
-          "user_id": user_id,
-          "name": name,
-          "description": description,
-          "coordinates": "{'lat':'','long':''}",
-          "type": "smart"
-        }));
-        await showMessage("Address was Successfully Added.");
-        break;
-      default:
-        await showMessage("Sorry, there was an error.");
-        print("Error");
-        print(response.statusCode);
-        break;
-    }
-    Navigator.of(context).pop();
-  }
-
-  showMessage(String massage) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Alert"),
-            content: Text(massage),
-            actions: <Widget>[
-              FlatButton(
-                child: Text("Close"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              )
-            ],
-          );
-        });
-  }
+ 
+  
+  
+  
+  
 
   List _builder(dynamic data) {
     var deviceWidth = MediaQuery.of(context).size.width;

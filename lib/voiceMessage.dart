@@ -1,19 +1,20 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:dex/appState.dart';
-import 'package:dex/singleVoiceView.dart';
-import 'package:flutter/material.dart';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_sound/flauto.dart';
 import 'package:flutter_sound/flutter_sound_player.dart';
 import 'package:flutter_sound/flutter_sound_recorder.dart';
-import 'package:flutter_sound/flauto.dart';
+import 'package:flutter_uploader/flutter_uploader.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_uploader/flutter_uploader.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
-import 'package:dio/dio.dart';
+
+import 'package:dex/appState.dart';
+import 'package:dex/singleVoiceView.dart';
 
 class VoiceMessage extends StatefulWidget {
 
@@ -68,7 +69,7 @@ FlutterSoundPlayer flutterSoundPlayer;
 
   }
 
-/// generated unique file name for out order
+// generated unique file name for out order
 
     Future getUniqueFileName() async { 
       return await DateTime.now().toUtc();
@@ -78,12 +79,12 @@ FlutterSoundPlayer flutterSoundPlayer;
 /// Starting recorder
 
   Future<void> startRecorder() async {
+    _isRecording = true;
 
       setState((){
-        startStopBtnColor = Colors.greenAccent;
         print("Color changed");
+        startStopBtnColor = Colors.greenAccent;
       });
-      _isRecording = true;
     // creating file recorder
     var folder = await getAudioFilesFolder();
     var fileName = await getUniqueFileName();
@@ -121,41 +122,14 @@ FlutterSoundPlayer flutterSoundPlayer;
     }
     
   );
-  }
+  } 
 
- Future<bool> sendAudio() async {
-print("uploading dio");
-   Dio dio = new Dio();
-    dio.options.baseUrl = dio.options.baseUrl = Provider.of<AppState>(context, listen: false).serverUrl;;
-    dio.options.connectTimeout = 5000;
-
-    var file = outputFile.path.toString();
-    var upload_file = await http.MultipartFile.fromPath("audio", file,);
-   FormData formData  = FormData.fromMap({
-    "user_id": Provider.of<AppState>(context, listen: false).cred.user_id,
-    "file": upload_file,
-    });
-    var response = await dio.post("/upload", data: formData).timeout(Duration(seconds: 10),onTimeout: (){
-      print("uploading timeout");
-      showMessage("Error","network error.  check connection and try again!");
-    }).then((a){
-      
-      print("a " + a.statusCode.toString());
-      switch (a.statusCode) {
-        case 200:
-      print("uploading success");
-          showMessage("Success","Orders Successfully sent!");
+Future<bool> sendAudio() async {
              setState(() {
-                  list.add(VoiceView(outputFile:file));
+                  list.add(VoiceView(outputFile:outputFile.path, url: '/market/voice/whatsupdanger.mp3',)); 
                   outputFile = null;
               });
-          break;
-        default:
-      print("uploading netwoek error");
-          showMessage("Error","Sorry there was an issue with our servers. please tr again.");
-          break;
-      }
-    });
+
 }
 
 
@@ -180,17 +154,30 @@ print("uploading dio");
   playRecording() async{
     print("recording: " + recentRecording);
     print("output file: " + outputFile.path);
-    Uint8List buffer;
-    try{
+    // Uint8List buffer;
+    // try{
     Uint8List buffer = (await outputFile.readAsBytesSync())
     	.buffer
     	.asUint8List();
-    }catch(e){
-      print("error: " + e.toString());
-    }
-      flutterSoundPlayer.startPlayer(outputFile.path.toString(),whenFinished: (){
+    // }catch(e){
+    //   print("error: " + e.toString());
+    // }
+      flutterSoundPlayer.startPlayerFromBuffer(buffer,whenFinished: (){
         print("i hope you enjoyed the audio");
+      }).catchError((err){
+        print("sorry about the error");
+        print(err);
+        print("sorry about the error");
       });
+      
+
+      // flutterSoundPlayer.startPlayer(outputFile.path.toString(),whenFinished: (){
+      //   print("i hope you enjoyed the audio");
+      // }).catchError((err){
+      //   print("sorry about the error");
+      //   print(err);
+      //   print("sorry about the error");
+      // });
       _isPlaying = true;
   }
 
@@ -265,6 +252,7 @@ Widget bottomControls() {
                             child: Container(child: Center(child:Text("Send")), ),
                             onTap: () {
                                sendAudio();
+                               print("sending");
                               },
                           ),
                      ),
@@ -305,11 +293,9 @@ Widget bottomControls() {
                           child: Icon(Icons.mic),
                         ),
                       ),
-                    ),
-    
-    
+                     ),
                     ],
-                  ),
+                   ),
                 );
 }
 

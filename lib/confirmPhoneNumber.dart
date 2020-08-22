@@ -136,7 +136,7 @@ class _ConfirmCode extends State<ConfirmCode> {
                             ), 
                             ModalRoute.withName("/Home"));
 
-                          Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){return Home();}));
+                          // Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){return Home();}));
                           print("code is correct");
                       } else { 
                         print(state);
