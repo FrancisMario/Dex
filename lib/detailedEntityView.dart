@@ -24,20 +24,20 @@ class DetailedEntityView extends StatefulWidget {
     this.ent_name,
     this.ent_img,
   }) : super(key: key);
-      List<Icon> logo = [Icon(Icons.add)];
+  List<Icon> logo = [Icon(Icons.add)];
   @override
   _DetailedEntityViewState createState() => _DetailedEntityViewState();
 }
 
 class _DetailedEntityViewState extends State<DetailedEntityView> {
-
   Future getData0;
-  List productId = [];
+  List productIds = [];
   @override
   void initState() {
     super.initState();
     getData0 = getData();
-  } 
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -79,8 +79,12 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
                   child: Text("Snapshot has error"),
                 );
               }
-              // print(snapshot.data);
-              // print('snapshot.data');
+              print(' snapshot.data ---------------------------------- ');
+              print(snapshot.data);
+              print(' snapshot.data ---------------------------------- ');
+              if (snapshot.data == 404) {
+                return Material(child: Text("404 Error"));
+              }
               return _body(snapshot.data);
           }
         },
@@ -91,28 +95,31 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
 // Body
   Widget _body(List data) {
     String url = Provider.of<AppState>(context, listen: false).serverUrl;
-    
 
     if (data != null) {
       return Container(
         child: Scaffold(
           floatingActionButton: GestureDetector(
-                      onTap: ((){
-                        Navigator.of(context)
-                          .push(MaterialPageRoute(builder: (BuildContext context) {
-                        return CheckOutAddress( 
-                          title: "Select An Address",
-                          parent: "market",
-                          data:{
-                            "ent_id":widget.ent_id,
-                            "ent_name":widget.ent_name,
-                            "ent_img":widget.ent_img,
-                            "products":productId,
-                            },
-                          );
-                      }));
-                      }),
-                      child: Container(
+            onTap: (() {
+              if (productIds.isEmpty) {
+                showMessage("Cart is Empty");
+              } else {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (BuildContext context) {
+                  return CheckOutAddress(
+                    title: "Select An Address",
+                    parent: "market",
+                    data: {
+                      "ent_id": widget.ent_id,
+                      "ent_name": widget.ent_name,
+                      "ent_img": widget.ent_img,
+                      "products": productIds,
+                    },
+                  );
+                }));
+              }
+            }),
+            child: Container(
               // margin: EdgeInsets.only(right:10),
               width: 90,
               decoration: BoxDecoration(
@@ -123,9 +130,14 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
                   IconButton(
                       icon: Icon(Icons.shopping_cart),
                       color: Colors.white,
-                      onPressed: () {
-                      }),
-                  Text(" ${productId.length.toString()}",style: TextStyle(fontSize:25,color: Colors.white,fontWeight: FontWeight.w600),)
+                      onPressed: () {}),
+                  Text(
+                    " ${productIds.length.toString()}",
+                    style: TextStyle(
+                        fontSize: 25,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600),
+                  )
                 ],
               ),
             ),
@@ -134,19 +146,20 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
             children: <Widget>[
               Stack(
                 children: <Widget>[
-                  
                   Container(
                     width: MediaQuery.of(context).size.width,
                     height: 200,
-                    child: Image.network(url + '/market/' + widget.ent_img,
-                        key: widget.key, fit: BoxFit.cover),
+                    child: Image.network(url + widget.ent_img,
+                        key: widget.key, 
+                        fit: BoxFit.cover,
+                        filterQuality: FilterQuality.low,
+                        ),
                   ),
                   Container(
                     width: MediaQuery.of(context).size.width,
                     height: 200,
                     color: Colors.black12,
                   ),
-              
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 5.0, vertical: 20.0),
@@ -232,14 +245,13 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
                     physics: BouncingScrollPhysics(),
                     children: List.generate(
                       data.length,
-                      (index){ 
+                      (index) {
                         widget.logo.add(Icon(Icons.add));
                         return Container(
                           child: Column(
-                              children: <Widget>[_builder(data[index],index)]
-                              ),
-                          );
-                          },
+                              children: <Widget>[_builder(data[index], index)]),
+                        );
+                      },
                     )),
               ),
             ],
@@ -281,9 +293,7 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
   }
 
   // Builder
-  Widget _builder(dynamic data,int index) {
-
-
+  Widget _builder(dynamic data, int index) {
     String url = Provider.of<AppState>(context, listen: false).serverUrl;
     return GestureDetector(
       onTap: () {},
@@ -293,12 +303,13 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
             alignment: Alignment.center,
             children: <Widget>[
               Container(
-                height: 175.0,
+                // height: 175.0,
                 width: 175.0,
                 child: Image.network(
-                  url + '/market/' + data['image_0'],
+                  url + data['image_0'],
                   key: widget.key,
                   fit: BoxFit.cover,
+                  filterQuality: FilterQuality.low,
                 ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10.0),
@@ -309,7 +320,7 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
                   showDetails(data);
                 },
                 child: Container(
-                  height: 175.0,
+                  // height: 175.0,
                   width: 175.0,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
@@ -347,7 +358,7 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
                   ],
                 ),
               ),
-                                  Positioned(
+              Positioned(
                   bottom: 10,
                   right: 10,
                   child: Container(
@@ -364,33 +375,29 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
                           //     .cartProducts
                           //     .add(Product.fromJson(data));
 
-                            if(!this.productId.contains(data["product_id"])){
-                                  setState( () {
-                                      widget.logo[index] = Icon(Icons.remove);
-                                        });
+                          if (!this.productIds.contains(data["product_id"])) {
+                            setState(() {
+                              widget.logo[index] = Icon(Icons.remove);
+                            });
 
-                              Future.delayed(Duration(seconds:1),(){
-                                setState(() {
-                                        this.productId.add(data["product_id"]);
-                                        print('added ' + data["product_id"]);
-                                });
-                              });
-                                        
-                            } else {
-                              
+                            Future.delayed(Duration(seconds: 1), () {
                               setState(() {
+                                this.productIds.add(data["product_id"]);
+                                print('added ' + data["product_id"]);
+                              });
+                            });
+                          } else {
+                            setState(() {
                               widget.logo[index] = Icon(Icons.add);
                               print('removed ' + data["product_id"]);
-                              });
+                            });
 
-                              Future.delayed(Duration(seconds:1),(){
-                                setState(() {
-                              this.productId.remove(data["product_id"]);
-                                });
+                            Future.delayed(Duration(seconds: 1), () {
+                              setState(() {
+                                this.productIds.remove(data["product_id"]);
                               });
-                            }
-                                
-                          
+                            });
+                          }
                         }),
                   )),
             ],
@@ -429,9 +436,10 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
                     height: 100,
                     width: 200,
                     child: Image.network(
-                      url + '/market/' + data['image_0'],
+                      url + data['image_0'],
                       key: widget.key,
                       fit: BoxFit.cover,
+                      filterQuality: FilterQuality.low,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.black45,
@@ -445,7 +453,7 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
                     height: 150,
                     width: 200,
                     child: Image.network(
-                      url + '/market/' + data['image_1'],
+                      url + data['image_1'],
                       key: widget.key,
                       fit: BoxFit.cover,
                     ),
@@ -461,9 +469,10 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
                     height: 100,
                     width: 200,
                     child: Image.network(
-                      url + '/market/' + data['image_2'],
+                      url + data['image_2'],
                       key: widget.key,
                       fit: BoxFit.cover,
+                      filterQuality: FilterQuality.low,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.black45,
@@ -487,20 +496,39 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
           );
         });
   }
-
+showMessage(String massage) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Alert"),
+            content: Text(massage),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Close"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        });
+  }   
+  
   Future getData() async {
     String url = Provider.of<AppState>(context, listen: false).serverUrl;
 
 // Optionally the request above could also be done as
-    var response = await http.post("$url/market/getAllProductsFromEntity.php",
-        body: {
-          "entity_id": widget.ent_id
-        }).timeout(Duration(seconds: 10), onTimeout: () {
+    var response = await http.post("$url/getAllProductsFromEntity.php", body: {
+      "entity_id": widget.ent_id
+    }).timeout(Duration(seconds: 10), onTimeout: () {
       print("timeout reached");
     }).catchError((onError) {
       print("onError");
       print(onError);
     });
+
+    print(response.request);
 
     print("entity id: ${widget.ent_id}");
     print("url : ${url}");
@@ -511,6 +539,8 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
         case 200:
           print("200");
           print(response.body);
+          print("200");
+          print(response.body);
           var data;
           try {
             data = json.decode(
@@ -519,6 +549,7 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
             print("json parsing problem");
             return null;
           }
+          print("everything success");
           return data;
           break;
         default:
@@ -530,6 +561,8 @@ class _DetailedEntityViewState extends State<DetailedEntityView> {
       print("response returned null");
       print(response);
       print("response returned null");
+      return 404;
     }
   }
+
 }

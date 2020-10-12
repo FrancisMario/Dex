@@ -1,5 +1,6 @@
 import 'package:dex/newOrder.dart';
 import 'package:dex/voiceMessage.dart';
+import 'package:dex/voiceSendMessage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -104,7 +105,7 @@ class OrderOptions extends StatelessWidget {
                     // Redirect to the page
                     Navigator.of(context).push(
                         MaterialPageRoute(builder: (BuildContext context) {
-                      return VoiceMessage();
+                      return VoiceOptions();
                     }));
                   },
                   child: Container(

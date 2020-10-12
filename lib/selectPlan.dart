@@ -22,20 +22,26 @@ class _SelectPlan extends State<SelectPlan> {
             child: Center(
               child:
                  ListView(
-                   scrollDirection: Axis.horizontal,
+                   physics: BouncingScrollPhysics(),
+                  //  scrollDirection: Axis.horizontal,
                 // crossAxisAlignment: CrossAxisAlignment.center,
                 // mainAxisAlignment: MainAxisAlignment.center,
                 children:<Widget>[
                   Padding(padding: EdgeInsets.only(top:10)),
                   Padding(padding: EdgeInsets.only(right:10)),
-                  PlanCard("Coporate","","2500", Color.fromRGBO(236, 112, 99, 1),),
+                  Card("Coporate","","2500", Color.fromRGBO(236, 112, 99, 1),),
                   Padding(padding: EdgeInsets.only(top:10)),
                   Padding(padding: EdgeInsets.only(right:10)),
-                  PlanCard("Mid-Range","","2500",Color.fromRGBO(46, 134, 193, 1),),
+                  Card("Mid-Range","","2500",Color.fromRGBO(46, 134, 193, 1),),
                   Padding(padding: EdgeInsets.only(top:10)),
-                  Padding(padding: EdgeInsets.only(left:10)),
                   Padding(padding: EdgeInsets.only(right:10)),
-                  PlanCard("Small","","2500",Color.fromRGBO(40, 180, 99, 1),),
+                  Card("Small","","2500",Color.fromRGBO(40, 180, 99, 1),),
+                  Padding(padding: EdgeInsets.only(top:10)),
+                  Padding(padding: EdgeInsets.only(right:10)),
+                  Card("Small","","2500",Color.fromRGBO(40, 180, 99, 1),),
+                  Padding(padding: EdgeInsets.only(top:10)),
+                  Padding(padding: EdgeInsets.only(right:10)),
+                  Card("Small","","2500",Color.fromRGBO(40, 180, 99, 1),),
                   Padding(padding: EdgeInsets.only(right:10)),
                 ],
               ),
@@ -46,7 +52,7 @@ class _SelectPlan extends State<SelectPlan> {
 }
 
 
-class PlanCard extends StatelessWidget {
+class Card extends StatelessWidget {
 
   var description;
   var price;
@@ -54,7 +60,7 @@ class PlanCard extends StatelessWidget {
   Color color;
  
   
-  PlanCard(this.title,this.description,this.price,this.color);
+  Card(this.title,this.description,this.price,this.color);
 
   @override
   Widget build(BuildContext context) {
@@ -68,43 +74,43 @@ class PlanCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(5),
               color: color,
             ),
-        height: 350,
-        width: 200,
+        height: MediaQuery.of(context).size.width / 3.0,
+        width: MediaQuery.of(context).size.width / 1.1000000000,
         child: Container(
               padding: EdgeInsets.all(10),
-              child: Column(
-                children:<Widget>[
-                Padding(padding: EdgeInsets.only(top:20)),
-                Text(title,style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
-                Padding(padding: EdgeInsets.only(top:10)),
-                Text(description,style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),),
-                Padding(padding: EdgeInsets.only(top:40)),
-                Text(price,style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold),),
-                Padding(padding: EdgeInsets.only(top:20)),
-                Text("/Month",style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),),
-                Padding(padding: EdgeInsets.only(top:20)),
-
-
-                    FlatButton(onPressed: (){
-                      // if(_confirmCodeFormKey.currentState.validate()){
-                      // Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){return ();}));
-                      // } 
-                    }, child: Container(
-                      height: 50,
-                      width: 300,
-                      decoration: new BoxDecoration(
-                        color: Color.fromRGBO(250, 219, 216,1),
-                        borderRadius: new BorderRadius.circular(5)
-                      ),
-                      child: new Center(
-                        child:Text('Select',
-                           style: new TextStyle(fontSize: 25.0),
+              child: Expanded(
+                flex: 3,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Expanded(
+                      flex: 3,
+                      child: Container(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text("Serekunda",style: TextStyle(fontSize:25),),
+                            Divider(),
+                            Text("Bamboo",style: TextStyle(fontSize:20),),
+                          ],
                         ),
                       ),
                     ),
+                    Expanded(flex: 1,child: VerticalDivider(),),
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text("price"),
+                          ],
+                        ),
+                      ),
                     ),
-                ]
-                )
+                    ],
+                  ),
+                ),
               ),
           ),
        ),

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:dex/appState.dart';
 import 'package:dex/entityList.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -120,7 +119,8 @@ Future<dynamic> getData(BuildContext context) async{
     return 
     Scaffold(
          appBar:AppBar(title:Text("Market Place")),
-         body: Container(
+         body: 
+         Container(
            margin: EdgeInsets.symmetric(horizontal:5,vertical: 10),
            width: MediaQuery.of(context).size.width - 10,
             child: GridView.count(crossAxisCount: 2, crossAxisSpacing: 1.2, mainAxisSpacing: 1.2,
@@ -129,6 +129,11 @@ Future<dynamic> getData(BuildContext context) async{
               data.length, (index) => 
                 GestureDetector(
                   onTap: (){
+                    Provider.of<AppState>(context, listen: false).session.addAll({
+                      "category_id":data[index]["category_id"],
+                      "category_img":data[index]["category_img"],
+                      "category_name":data[index]["category_name"]
+                      });
                     Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
                            return DetailedCategoryView(key: widget.key,id:data[index]["category_id"],img:data[index]["category_img"],name:data[index]["category_name"]); //Going back to the new order start page
                     }));
@@ -172,7 +177,7 @@ Future<dynamic> getData(BuildContext context) async{
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
                             Text(data[index]['category_name'],style: TextStyle(
-                              fontSize: 30,
+                              fontSize: 25,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                               letterSpacing: 1.2
@@ -187,6 +192,7 @@ Future<dynamic> getData(BuildContext context) async{
               )
             ),
          ),
+       
        );
   }
 }

@@ -31,6 +31,7 @@ class AppState with ChangeNotifier{
 
       Stat stat = null;
       Stat get _stat => stat;
+      Map session = {};
 
 
       OrderPackage order = new OrderPackage();

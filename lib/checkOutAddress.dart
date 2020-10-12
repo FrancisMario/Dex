@@ -25,11 +25,13 @@ class _Address extends State<CheckOutAddress> {
  
   deleteAddress(String id, BuildContext context) async {
     String url = Provider.of<AppState>(context, listen: false).serverUrl;
-    String user_id = Provider.of<AppState>(context, listen: false).cred.user_id;
+    // String user_id = Provider.of<AppState>(context, listen: false).cred.user_id;
+    String user_id = "d430917dcefc1012993a98a403678141";
+
 
 // Optionally the request above could also be done as
     var response = await http.post(
-      "$url/market/deleteAddress.php",
+      "$url/deleteAddress.php",
       body: {'user_id': user_id, 'table_id': id},
     ).timeout(Duration(seconds: 10), onTimeout: () {
       // showError("NetWork Error, Please Try Again");
@@ -88,11 +90,14 @@ class _Address extends State<CheckOutAddress> {
 
   Future<dynamic> getData() async {
     String url = Provider.of<AppState>(context, listen: false).serverUrl;
-    String user_id = Provider.of<AppState>(context, listen: false).cred.user_id;
+    // String user_id = Provider.of<AppState>(context, listen: false).cred.user_id;
+    String user_id = "d430917dcefc1012993a98a403678141";
+
 
 // Optionally the request above could also be done as
+    url = url + "getAddress.php";
     var response = await http.post(
-      "$url/market/getAddress.php",
+      url,
       body: {"user_id": user_id},
     ).timeout(Duration(seconds: 10), onTimeout: () {
       // showError("NetWork Error, Please Try Again");
@@ -104,7 +109,8 @@ class _Address extends State<CheckOutAddress> {
 
     switch (response.statusCode) {
       case 200:
-        print("200");
+        print("200 -");
+        print("$url");
         print(response.body);
         var data;
         if (response.body != "404") {
@@ -344,7 +350,7 @@ class _Address extends State<CheckOutAddress> {
   }
 
   Widget button(item) {
-    if (widget.parent == "null") {
+    if (widget.parent == "null") { // probably coming here from the custom delivery
       Provider.of<AppState>(context, listen: false).cartAddress =
           Address.fromJson(item);
       return Expanded(
@@ -369,7 +375,7 @@ class _Address extends State<CheckOutAddress> {
           ],
         ),
       );
-    } else if (widget.parent == "market") {
+    } else if (widget.parent == "market") { // coming here from the market tab
       return Expanded(
         child: Column(
           children: <Widget>[
@@ -383,7 +389,9 @@ class _Address extends State<CheckOutAddress> {
               onPressed: () {
                 Provider.of<AppState>(context, listen: false).cartAddress =
                     Address.fromJson(item);
-                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){return CheckOut();}));
+                    print("item");
+                    print(item);
+                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context){return CheckOut(widget.data);}));
 
               },
               child: Text(
@@ -412,7 +420,7 @@ class _Address extends State<CheckOutAddress> {
 
     // displaying the message that there are currently no address for the user
 
-    if (widget.items.length == 1) {
+    if (widget.items.length == 1) { 
       widget.items.add(Padding(
         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 100),
         child: Text(

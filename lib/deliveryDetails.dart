@@ -93,7 +93,8 @@ class _DeliveryDetails extends State<DeliveryDetails> {
   _sendOrder() async {
     print("sending order");
     String url = Provider.of<AppState>(context, listen: false).serverUrl;
-    String user_id = Provider.of<AppState>(context, listen: false).cred.user_id;
+    // String user_id = Provider.of<AppState>(context, listen: false).cred.user_id;
+    String user_id = "d430917dcefc1012993a98a403678141";
     var body = {
       "user_id": user_id,
       "package_size": widget.form.package_size,
@@ -113,7 +114,7 @@ class _DeliveryDetails extends State<DeliveryDetails> {
     print("order almost sent");
     print("body $body");
     var response = await http
-        .post("$url/market/sendOrder.php", body: body)
+        .post("$url/sendOrder.php", body: body)
         .timeout(Duration(seconds: 10), onTimeout: () {
       showError("NetWork Error, Please Try Again");
     });

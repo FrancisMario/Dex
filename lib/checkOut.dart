@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 class CheckOut extends StatefulWidget {
   final List<String> cart;
   final String ent_id;
-  CheckOut({Key key, this.cart, this.ent_id}) : super(key: key);
+  CheckOut(Map data, {Key key, this.cart, this.ent_id}) : super(key: key);
 
   @override
   _CheckOutState createState() => _CheckOutState();
@@ -16,6 +16,7 @@ class CheckOut extends StatefulWidget {
 
 class _CheckOutState extends State<CheckOut> {
   List<Product> products = [];
+  // products.add(value)
 
   Future checkOut(){
 
@@ -43,6 +44,7 @@ class _CheckOutState extends State<CheckOut> {
     if(products == null){
       return Text("");
     }
+  
      return  Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 child: 
@@ -91,6 +93,8 @@ class _CheckOutState extends State<CheckOut> {
 
   @override
   Widget build(BuildContext context) {
+      print("Provider.of<AppState>(context, listen: false).cartAddress.name");
+    print(Provider.of<AppState>(context, listen: false).cartAddress.name);
     return Container(
       child: Scaffold(
         appBar: AppBar(title: Text("Check Out")),

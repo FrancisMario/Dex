@@ -1,18 +1,19 @@
 import 'dart:convert';
 
 import 'package:dex/appState.dart';
+import 'package:dex/audiomessage.dart';
 import 'package:dex/dataStructures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-class Tracking extends StatefulWidget {
-  Tracking({Key key}) : super(key: key);
+class Listen extends StatefulWidget {
+  Listen({Key key}) : super(key: key);
 
   @override
-  _TrackingState createState() => _TrackingState();
+  _ListenState createState() => _ListenState();
 }
 
-class _TrackingState extends State<Tracking> {
+class _ListenState extends State<Listen> {
 
   List<Text> records = [];
   // BuildContext context;
@@ -101,7 +102,12 @@ class _TrackingState extends State<Tracking> {
                       key: widget.key,
                         delegate: SliverChildListDelegate(
                           List.generate(snapshot.data.length, (index){
-                            return card(snapshot.data[index]);
+                            return Column(
+                              children: <Widget>[
+                                card(snapshot.data[index]),
+                                Audio()
+                              ],
+                            );
                            })
                           // _builder(intermediate),
                         ),

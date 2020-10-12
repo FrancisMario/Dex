@@ -115,7 +115,8 @@ class _NewOrder extends State<NewOrder> {
               decoration: BoxDecoration(
                   color: Colors.black26, borderRadius: BorderRadius.circular(10)),
               // dropdown below..
-              child: DropdownButton<String>(
+              child: 
+              DropdownButton<String>(
                   value: _pickupLocation,
                   hint: Text("Pickup Location"),
                   icon: Icon(Icons.arrow_drop_down),
@@ -134,6 +135,7 @@ class _NewOrder extends State<NewOrder> {
                     );
                   }).toList()
               ),
+           
             ),
             
             SizedBox(height: 10),

@@ -68,7 +68,9 @@ class _NormalAddressState extends State<NormalAddress> {
 
     _saveNormalAddress(String name, String description, String location) async {
     String url = Provider.of<AppState>(context, listen: false).serverUrl;
-    String user_id = Provider.of<AppState>(context, listen: false).cred.user_id;
+    // String user_id = Provider.of<AppState>(context, listen: false).cred.user_id;
+    String user_id = "d430917dcefc1012993a98a403678141";
+
     widget.body = {
       "user_id": user_id,
       "name": name,
@@ -76,7 +78,7 @@ class _NormalAddressState extends State<NormalAddress> {
       "coordinates": location,
       "type": "normal"
     };
-    var response = await http.post("$url/market/addAddress.php", body: widget.body
+    var response = await http.post("$url/addAddress.php", body: widget.body
     ).timeout(Duration(seconds: 10), onTimeout: () {
       print("timeout reached");
     }).catchError((onError) {

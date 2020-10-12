@@ -15,9 +15,12 @@ class DetailedCategoryView extends StatefulWidget {
   final String name;
   DetailedCategoryView({
     Key key,
-    this.name = "Resturants",
-    this.id = "2d5151e8d45ba9b5452edb2a618e28a0",
-    this.img = "uploads/category/e87bd8490058ff354e975b19c87de7d9.JPG"
+    // this.name = "Resturants",
+    // this.id = "2d5151e8d45ba9b5452edb2a618e28a0",
+    // this.img = "uploads/category/e87bd8490058ff354e975b19c87de7d9.JPG"
+    this.name,
+    this.id,
+    this.img
   }): assert(id != null), super(key: key);
 
   @override
@@ -32,7 +35,7 @@ class DetailedStateCategoryView extends State < DetailedCategoryView > {
 
     // Optionally the request above could also be done as
     var response = await http.post(
-      "$url/market/getAllEntityFromCategory.php",
+      "$url/getAllEntityFromCategory.php",
       body: {
         "category_id": widget.id
       }
@@ -124,7 +127,7 @@ class DetailedStateCategoryView extends State < DetailedCategoryView > {
                         flexibleSpace: FlexibleSpaceBar(
                           centerTitle: true,
                           title: Text(widget.name),
-                          background: Image.network(url + '/market/' + widget.img, key: widget.key, fit: BoxFit.cover, ),
+                          background: Image.network(url + '/' + widget.img, key: widget.key, fit: BoxFit.cover, ),
                         ),
                       ),
 
@@ -182,7 +185,8 @@ class DetailedStateCategoryView extends State < DetailedCategoryView > {
             crossAxisAlignment:CrossAxisAlignment.center,
             children:<Widget>[
               SizedBox(height: 10,),
-              Center(child: Text("just some cool things about the vendor just some cool things about the vendor things about the vendor things about the vendor .",style: TextStyle(
+              // Center(child: Text("just some cool things about the vendor just some cool things about the vendor things about the vendor things about the vendor .",style: TextStyle(
+              Center(child: Text("",style: TextStyle(
                 fontSize: 20
               ),overflow: TextOverflow.clip),),
               SizedBox(height: 5,),
@@ -217,6 +221,12 @@ class DetailedStateCategoryView extends State < DetailedCategoryView > {
             print(item['entity_name']);
             print(item['image_0']);
             print(item['entity_description']);
+            Provider.of<AppState>(context, listen: false).session.addAll({
+                      "entity_id":item['entity_id'],
+                      "entity_name" : item['entity_name'],
+                      "entity_description" : item['entity_description'],
+                      "image_0" : item['image_0'],
+                      });
             Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
               return DetailedEntityView(ent_id: item['entity_id'], ent_des:item['entity_description'], ent_name:item['entity_name'], ent_img:item['image_0']); //Going back to the new order start page
             }));
@@ -231,7 +241,7 @@ class DetailedStateCategoryView extends State < DetailedCategoryView > {
                     Container(
                       width: 100,
                       height: 100,
-                      child: Image.network(url + '/market/' + item['image_0'], key: widget.key, fit: BoxFit.cover, ),
+                      child: Image.network(url + '/' + item['image_0'], key: widget.key, fit: BoxFit.cover, ),
                     ),
                     Expanded(
                       child: Padding(
